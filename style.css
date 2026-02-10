@@ -135,3 +135,45 @@ button.secondary:hover { background: var(--secondary-hover); }
   background: var(--primary);
   color: var(--bg);
 }
+
+/* 陣列操作按鈕樣式 */
+.array-controls {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.array-btn {
+  padding: 2px 6px;
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--secondary);
+  color: var(--text);
+}
+.array-btn:hover { background: var(--secondary-hover); }
+
+/* 過濾對話框內容樣式 */
+.filter-options-container {
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 10px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}

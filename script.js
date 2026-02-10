@@ -14,6 +14,9 @@ let rootNodeEl = null;
 let jsonHidden = false;
 let isFirstParse = true;
 
+// 用於 Filter 功能的變量
+let currentFilteringBody = null;
+
 // Preferences
 let currentTheme = localStorage.getItem('json-theme') || 'dark';
 let currentFont = localStorage.getItem('json-font') || 'medium';
@@ -25,13 +28,14 @@ function setActiveSettingButtons(selector, dataKey, activeValue) {
     const isActive = btn.dataset[dataKey] === activeValue;
     if (isActive) {
       btn.classList.add("is-active");
-      btn.style.pointerEvents = "none"; // 選中了就不能再點
+      btn.style.pointerEvents = "none";
     } else {
       btn.classList.remove("is-active");
       btn.style.pointerEvents = "auto";
     }
   });
 }
+
 const translations = {
   zh: {
     title: "JSON Beautifier",
@@ -100,9 +104,6 @@ function applyFontSize(size) {
   setActiveSettingButtons(".font-opt", "font", size);
 }
 
-
-settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
-settingsBackdrop.onclick = (e) => { if (e.target === settingsBackdrop) settingsBackdrop.classList.remove("open"); };
 function updateHideJsonBtnText() {
   const t = translations[currentLang];
   hideJsonBtn.textContent = jsonHidden ? t.showInput : t.hideInput;
@@ -115,30 +116,82 @@ function setError(msg) {
   errorEl.textContent = msg ? prefix + msg : "";
 }
 
+// --- Filter 相關邏輯 ---
+function openFilterModal(data, bodyContainer) {
+  const backdrop = document.getElementById("filterBackdrop");
+  const optionsContainer = document.getElementById("filterOptions");
+  const confirmBtn = document.getElementById("confirmFilterBtn");
+
+  currentFilteringBody = bodyContainer;
+  optionsContainer.innerHTML = "";
+
+  // 1. 提取陣列中所有物件的 Keys
+  const allKeys = new Set();
+  data.forEach(item => {
+    if (item && typeof item === 'object' && !Array.isArray(item)) {
+      Object.keys(item).forEach(k => allKeys.add(k));
+    }
+  });
+
+  // 2. 建立選項
+  const createCheckbox = (val, label) => {
+    const lbl = document.createElement("label");
+    lbl.className = "filter-item";
+    lbl.innerHTML = `<input type="checkbox" value="${val}" checked> <span>${label}</span>`;
+    optionsContainer.appendChild(lbl);
+  };
+
+  createCheckbox("all", "All (全部)");
+  allKeys.forEach(k => createCheckbox(k, k));
+
+  backdrop.classList.add("open");
+
+  confirmBtn.onclick = () => {
+    const selected = Array.from(optionsContainer.querySelectorAll("input:checked")).map(i => i.value);
+    const isAll = selected.includes("all");
+
+    // 遍歷陣列元素，隱藏不匹配的 key 節點
+    Array.from(bodyContainer.children).forEach(itemNode => {
+      const itemBody = itemNode.querySelector(".node-body");
+      if (itemBody) {
+        Array.from(itemBody.children).forEach(pair => {
+          const keyName = pair.getAttribute("data-key");
+          pair.style.display = (isAll || selected.includes(keyName)) ? "block" : "none";
+        });
+      }
+    });
+    backdrop.classList.remove("open");
+  };
+}
+
+// --- 核心 Node 建立函數 ---
 function createNode(key, value, isLast = true, keyIndex = null) {
   const node = document.createElement("div");
   node.className = "node";
+  if (key !== null) node.setAttribute("data-key", key); // 加入 data-key 方便過濾
+
   const head = document.createElement("div");
   head.className = "node-head";
-  
+
   const toggle = document.createElement("span");
   toggle.className = "toggle";
-  
+
   const keySpan = document.createElement("span");
   if (keyIndex !== null) {
     keySpan.className = "key-index";
     keySpan.textContent = keyIndex;
+    head.appendChild(keySpan);
   } else if (key !== null) {
     keySpan.className = "key";
     keySpan.textContent = `"${key}"`;
-   head.appendChild(keySpan);
+    head.appendChild(keySpan);
     const colon = document.createElement("span");
     colon.textContent = ": ";
     head.appendChild(colon);
   }
 
   const isContainer = value !== null && typeof value === "object";
-  
+
   if (isContainer) {
     const isArray = Array.isArray(value);
     const openBracket = isArray ? "[" : "{";
@@ -153,9 +206,30 @@ function createNode(key, value, isLast = true, keyIndex = null) {
     bracketOpen.textContent = openBracket;
     head.appendChild(bracketOpen);
 
+    // 如果是陣列，加入 Filter/Expand/Collapse 按鈕
+    if (isArray) {
+      const controls = document.createElement("span");
+      controls.className = "array-controls";
+
+      const fBtn = document.createElement("button");
+      fBtn.className = "array-btn"; fBtn.textContent = "Filter";
+      fBtn.onclick = (e) => { e.stopPropagation(); openFilterModal(value, body); };
+
+      const eBtn = document.createElement("button");
+      eBtn.className = "array-btn"; eBtn.textContent = "+";
+      eBtn.onclick = (e) => { e.stopPropagation(); setExpandRecursive(node, true); };
+
+      const cBtn = document.createElement("button");
+      cBtn.className = "array-btn"; cBtn.textContent = "-";
+      cBtn.onclick = (e) => { e.stopPropagation(); setExpandRecursive(node, false); };
+
+      controls.append(fBtn, eBtn, cBtn);
+      head.appendChild(controls);
+    }
+
     const body = document.createElement("div");
     body.className = "node-body";
-    
+
     if (isArray) {
       value.forEach((v, i) => body.appendChild(createNode(null, v, i === len - 1, i)));
     } else {
@@ -263,7 +337,11 @@ hideJsonBtn.onclick = () => {
   updateHideJsonBtnText();
 };
 settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
-settingsBackdrop.onclick = (e) => { if (e.target === settingsBackdrop) settingsBackdrop.classList.remove("open"); };
+
+// 點擊背景關閉 Modal (通用)
+document.querySelectorAll(".settings-backdrop").forEach(bg => {
+  bg.onclick = (e) => { if (e.target === bg) bg.classList.remove("open"); };
+});
 
 document.querySelectorAll(".theme-opt").forEach(btn => btn.onclick = () => applyTheme(btn.dataset.theme));
 document.querySelectorAll(".font-opt").forEach(btn => btn.onclick = () => applyFontSize(btn.dataset.font));

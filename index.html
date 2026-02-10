@@ -5,6 +5,17 @@
     <title>JSON Beautifier</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<div class="settings-backdrop" id="filterBackdrop">
+    <div class="settings-dialog">
+        <h2 id="filterTitle">過濾欄位 (Filter Keys)</h2>
+        <div id="filterOptions" class="filter-options-container">
+        </div>
+        <div class="filter-actions">
+            <button class="btn-done" id="confirmFilterBtn">確認</button>
+            <button class="secondary btn-done" onclick="document.getElementById('filterBackdrop').classList.remove('open')">取消</button>
+        </div>
+    </div>
+</div>
 <body class="theme-dark font-medium">
 
 <h1>JSON Beautifier</h1>
