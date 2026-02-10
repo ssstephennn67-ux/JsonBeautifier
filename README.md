@@ -16,6 +16,16 @@ A single-page JSON viewer with tree view, expand/collapse, and array key filter.
 
 Open `index.html` in a browser, paste JSON into the textarea, and click **Parse / Beautify** (or press Ctrl/Cmd + Enter).
 
+## Deploy (GitHub Pages)
+
+The repo includes a GitHub Action that deploys to GitHub Pages on every push to `main`.
+
+1. In the repo: **Settings → Pages**
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**
+3. Push to `main` (or run the workflow manually from the **Actions** tab)
+
+The site will be available at `https://<username>.github.io/JsonBeautifier/`.
+
 ## License
 
 MIT
