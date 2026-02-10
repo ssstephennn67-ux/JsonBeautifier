@@ -2,7 +2,6 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Beautifier</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -22,11 +21,10 @@
 <div class="main">
     <div class="panel-left" id="panelLeft">
         <textarea id="jsonInput" placeholder="在此貼上 JSON 程式碼..."></textarea>
+        <div id="error" class="error"></div>
     </div>
     <div class="panel-right" id="panelRight">
-        <div id="output" class="tree">
-            <div style="color: var(--muted); padding: 20px;">等待輸入...</div>
-        </div>
+        <div id="output" class="tree"></div>
     </div>
 </div>
 
@@ -34,34 +32,30 @@
     <div class="settings-dialog">
         <h2 id="settingsTitle">偏好設定</h2>
         <div class="settings-row">
-            <span class="settings-label" id="labelTheme">色彩主題</span>
+            <span class="settings-label">主題</span>
             <div class="settings-options">
-                <button class="secondary theme-opt" data-theme="dark">東京之夜</button>
-                <button class="secondary theme-opt" data-theme="light">純白模式</button>
+                <button class="secondary theme-opt" data-theme="dark">Tokyo Night</button>
+                <button class="secondary theme-opt" data-theme="light">Light</button>
                 <button class="secondary theme-opt" data-theme="dracula">Dracula</button>
                 <button class="secondary theme-opt" data-theme="nord">Nord</button>
-                <button class="secondary theme-opt" data-theme="gruvbox">Gruvbox</button>
-                <button class="secondary theme-opt" data-theme="onedark">One Dark</button>
-                <button class="secondary theme-opt" data-theme="rose">Rose Pine</button>
             </div>
         </div>
         <div class="settings-row">
-            <span class="settings-label" id="labelFont">字體大小</span>
+            <span class="settings-label">字體大小</span>
             <div class="settings-options">
                 <button class="secondary font-opt" data-font="small">小</button>
                 <button class="secondary font-opt" data-font="medium">中</button>
                 <button class="secondary font-opt" data-font="large">大</button>
-                <button class="secondary font-opt" data-font="xlarge">特大</button>
             </div>
         </div>
         <div class="settings-row">
-            <span class="settings-label">介面語言</span>
+            <span class="settings-label">語言</span>
             <div class="settings-options">
                 <button class="secondary lang-opt" data-lang="zh">繁體中文</button>
                 <button class="secondary lang-opt" data-lang="en">English</button>
             </div>
         </div>
-        <button style="width: 100%; margin-top: 10px;" onclick="document.getElementById('settingsBackdrop').classList.remove('open')">完成</button>
+        <button class="btn-done" onclick="document.getElementById('settingsBackdrop').classList.remove('open')">完成</button>
     </div>
 </div>
 
