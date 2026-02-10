@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JSON Beautifier</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Monaco, monospace;
+      margin: 0;
+      padding: 16px;
+      background: #1a1b26;
+      color: #c0caf5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 12px 0; color: #7aa2f7; }
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .main {
+      display: flex;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+    }
+    .panel-left {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-left.hidden {
+      display: none;
+    }
+    .panel-right {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-right.full-width {
+      flex: 1 1 100%;
+    }
+    textarea {
+      width: 100%;
+      flex: 1;
+      min-height: 200px;
+      padding: 12px;
+      background: #24283b;
+      border: 1px solid #3b4261;
+      border-radius: 8px;
+      color: #c0caf5;
+      font-size: 13px;
+      resize: vertical;
+    }
+    textarea::placeholder { color: #565f89; }
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #7aa2f7;
+      color: #1a1b26;
+    }
+    button:hover { background: #89b4fa; }
+    button.secondary { background: #3b4261; color: #c0caf5; }
+    button.secondary:hover { background: #414868; }
+    .error { color: #f7768e; margin-top: 8px; }
+    .tree {
+      flex: 1;
+      padding: 12px;
+      background: #24283b;
+      border-radius: 8px;
+      border: 1px solid #3b4261;
+      overflow: auto;
+    }
+    .node {
+      margin: 2px 0;
+      font-size: 13px;
+    }
+    .node-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+    .node-head:hover { background: rgba(122, 162, 247, 0.15); }
+    .toggle {
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #565f89;
+    }
+    .toggle.collapsed::before { content: "▶"; }
+    .toggle.expanded::before { content: "▼"; }
+    .key { color: #7dcfff; }
+    .key.index { color: #bb9af7; margin-right: 4px; }
+    .bracket { color: #565f89; }
+    .string { color: #9ece6a; }
+    .number { color: #ff9e64; }
+    .boolean { color: #ff9e64; }
+    .null { color: #565f89; }
+    .count { color: #565f89; font-size: 11px; }
+    .children { margin-left: 20px; border-left: 1px solid #3b4261; padding-left: 8px; }
+    .array-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 10px;
+    }
+    .array-actions button {
+      padding: 4px 10px;
+      font-size: 12px;
+      line-height: 1.2;
+      background: #3b4261;
+      color: #c0caf5;
+    }
+    .array-actions button:hover { background: #414868; }
+    .array-key-filter {
+      margin-left: 8px;
+      padding: 2px 8px;
+      font-size: 12px;
+      background: #1a1b26;
+      border: 1px solid #3b4261;
+      border-radius: 4px;
+      color: #c0caf5;
+      max-width: 140px;
+    }
+    .array-key-filter option { background: #24283b; color: #c0caf5; }
+  </style>
+</head>
+<body>
+  <h1>JSON Beautifier</h1>
+  <div class="toolbar">
+    <button type="button" id="parseBtn">Parse / Beautify</button>
+    <button type="button" class="secondary" id="hideJsonBtn">Hide JSON</button>
+    <button type="button" class="secondary" id="expandAllBtn">Expand All</button>
+    <button type="button" class="secondary" id="collapseAllBtn">Collapse All</button>
+  </div>
+  <div class="main">
+    <div class="panel-left">
+      <textarea id="input" placeholder='Paste JSON here'>{"items": [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}], "count": 2}</textarea>
+      <div id="error" class="error"></div>
+    </div>
+    <div class="panel-right">
+      <div id="output" class="tree"></div>
+    </div>
+  </div>
+
+  <script>
+    const inputEl = document.getElementById("input");
+    const outputEl = document.getElementById("output");
+    const errorEl = document.getElementById("error");
+    const parseBtn = document.getElementById("parseBtn");
+    const expandAllBtn = document.getElementById("expandAllBtn");
+    const collapseAllBtn = document.getElementById("collapseAllBtn");
+    const hideJsonBtn = document.getElementById("hideJsonBtn");
+    const panelLeft = document.querySelector(".panel-left");
+    const panelRight = document.querySelector(".panel-right");
+
+    let rootNodeEl = null;
+    let jsonHidden = false;
+
+    function setError(msg) {
+      errorEl.textContent = msg || "";
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function getNodeId() {
+      return "n_" + Math.random().toString(36).slice(2, 11);
+    }
+
+    function isObjectOrArray(value) {
+      return value !== null && typeof value === "object";
+    }
+
+    function collectExpandableIds(containerEl, expand) {
+      const toggles = containerEl.querySelectorAll(".toggle.expanded, .toggle.collapsed");
+      toggles.forEach((t) => {
+        const head = t.closest(".node-head");
+        if (!head) return;
+        const node = head.closest(".node");
+        if (!node) return;
+        const id = node.dataset.nodeId;
+        if (id) {
+          const isExpanded = t.classList.contains("expanded");
+          if (expand && !isExpanded) t.click();
+          if (!expand && isExpanded) t.click();
+        }
+      });
+    }
+
+    function setExpandRecursive(nodeEl, expand) {
+      const toggle = nodeEl.querySelector(".toggle");
+      const children = nodeEl.querySelector(".children");
+      if (!toggle || !children) return;
+      const isExpanded = toggle.classList.contains("expanded");
+      if (isExpanded !== expand) toggle.click();
+      if (expand && children) {
+        children.querySelectorAll(".node").forEach((child) => setExpandRecursive(child, true));
+      }
+    }
+
+    function expandOrCollapseAllForArray(arrayNodeEl, expand) {
+      const children = arrayNodeEl.querySelector(".children");
+      if (!children) return;
+      children.querySelectorAll(".node").forEach((child) => setExpandRecursive(child, expand));
+    }
+
+    function collectObjectKeysFromArray(arr) {
+      const set = new Set();
+      arr.forEach((item) => {
+        if (item !== null && typeof item === "object" && !Array.isArray(item)) {
+          Object.keys(item).forEach((k) => set.add(k));
+        }
+      });
+      return Array.from(set).sort();
+    }
+
+    function applyArrayKeyFilter(arrayNodeEl, keyFilter) {
+      const children = arrayNodeEl.querySelector(".children");
+      if (!children) return;
+      const key = (keyFilter || "").trim();
+      children.querySelectorAll(".array-item-wrapper").forEach((wrapper) => {
+        const keysStr = wrapper.getAttribute("data-object-keys") || "";
+        const keys = keysStr ? keysStr.split(",") : [];
+        const hasKey = key === "" || keys.includes(key);
+        wrapper.style.display = hasKey ? "" : "none";
+        const objNode = wrapper.querySelector(".node[data-is-object='true']");
+        if (!objNode || !hasKey) return;
+        setExpandRecursive(objNode, true);
+        const objChildren = objNode.querySelector(".children");
+        if (!objChildren) return;
+        objChildren.querySelectorAll(".node[data-key]").forEach((row) => {
+          const rowKey = row.getAttribute("data-key");
+          row.style.display = (key === "" || rowKey === key) ? "" : "none";
+        });
+      });
+    }
+
+    function renderValue(value, keyLabel, indexLabel) {
+      const nodeId = getNodeId();
+      const dataKeyAttr = keyLabel != null ? ` data-key="${escapeHtml(keyLabel)}"` : "";
+      let keyPart = "";
+      if (indexLabel != null) keyPart += `<span class="key index">${escapeHtml(String(indexLabel))}</span>`;
+      if (keyLabel != null) keyPart += `<span class="key">${escapeHtml(String(keyLabel))}</span>`;
+      if (value === null) {
+        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="null">null</span></span></div>`;
+      }
+      if (typeof value === "boolean") {
+        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="boolean">${value}</span></span></div>`;
+      }
+      if (typeof value === "number") {
+        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="number">${value}</span></span></div>`;
+      }
+      if (typeof value === "string") {
+        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="string">"${escapeHtml(value)}"</span></span></div>`;
+      }
+      if (Array.isArray(value)) {
+        const len = value.length;
+        const allKeys = collectObjectKeysFromArray(value);
+        const keyFilterHtml = allKeys.length ? `<select class="array-key-filter" title="Show only objects with this key"><option value="">(all)</option>${allKeys.map((k) => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join("")}</select>` : "";
+        const childNodes = value.map((item, i) => {
+          const keysAttr = (item !== null && typeof item === "object" && !Array.isArray(item)) ? ` data-object-keys="${escapeHtml(Object.keys(item).join(","))}"` : "";
+          return `<div class="array-item-wrapper"${keysAttr}>${renderValue(item, null, `[${i}]`)}</div>`;
+        }).join("");
+        return `
+          <div class="node" data-node-id="${nodeId}" data-is-array="true">
+            <span class="node-head">
+              <span class="toggle expanded"></span>
+              ${keyPart}
+              <span class="bracket">[</span>
+              <span class="count">${len} items</span>
+              <span class="bracket">]</span>
+              <span class="array-actions">
+                ${keyFilterHtml}
+                <button type="button" class="expand-all-array" title="Expand all">Expand all</button>
+                <button type="button" class="collapse-all-array" title="Collapse all">Collapse all</button>
+              </span>
+            </span>
+            <div class="children">${childNodes}</div>
+          </div>`;
+      }
+      const obj = value;
+      const keys = Object.keys(obj);
+      const childNodes = keys.map((k) => renderValue(obj[k], k, null)).join("");
+      return `
+        <div class="node" data-node-id="${nodeId}" data-is-object="true">
+          <span class="node-head">
+            <span class="toggle expanded"></span>
+            ${keyPart}
+            <span class="bracket">{</span>
+            <span class="count">${keys.length} keys</span>
+            <span class="bracket">}</span>
+          </span>
+          <div class="children">${childNodes}</div>
+        </div>`;
+    }
+
+    function attachToggleListeners(containerEl) {
+      containerEl.querySelectorAll(".node-head").forEach((head) => {
+        const toggle = head.querySelector(".toggle");
+        const node = head.closest(".node");
+        const children = node.querySelector(".children");
+        if (!toggle || toggle.classList.contains("empty")) return;
+        toggle.addEventListener("click", (e) => {
+          if (e.target.closest(".array-actions")) return;
+          if (!children) return;
+          const isExpanded = toggle.classList.contains("expanded");
+          toggle.classList.toggle("expanded", !isExpanded);
+          toggle.classList.toggle("collapsed", isExpanded);
+          children.style.display = isExpanded ? "none" : "block";
+        });
+      });
+      containerEl.querySelectorAll(".array-actions .expand-all-array").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const node = btn.closest(".node");
+          if (node) expandOrCollapseAllForArray(node, true);
+        });
+      });
+      containerEl.querySelectorAll(".array-actions .collapse-all-array").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const node = btn.closest(".node");
+          if (node) expandOrCollapseAllForArray(node, false);
+        });
+      });
+      containerEl.querySelectorAll(".array-key-filter").forEach((select) => {
+        select.addEventListener("change", (e) => {
+          const arrayNode = e.target.closest(".node[data-is-array='true']");
+          if (arrayNode) applyArrayKeyFilter(arrayNode, e.target.value);
+        });
+      });
+    }
+
+    function parseAndRender() {
+      setError("");
+      const raw = inputEl.value.trim();
+      if (!raw) {
+        outputEl.innerHTML = "";
+        return;
+      }
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (err) {
+        setError("Invalid JSON: " + err.message);
+        outputEl.innerHTML = "";
+        return;
+      }
+      const html = renderValue(data, null, null);
+      outputEl.innerHTML = html;
+      rootNodeEl = outputEl.querySelector(".node");
+      attachToggleListeners(outputEl);
+    }
+
+    expandAllBtn.addEventListener("click", () => {
+      if (!rootNodeEl) return;
+      setExpandRecursive(rootNodeEl, true);
+    });
+    collapseAllBtn.addEventListener("click", () => {
+      if (!rootNodeEl) return;
+      setExpandRecursive(rootNodeEl, false);
+    });
+    hideJsonBtn.addEventListener("click", () => {
+      jsonHidden = !jsonHidden;
+      panelLeft.classList.toggle("hidden", jsonHidden);
+      panelRight.classList.toggle("full-width", jsonHidden);
+      hideJsonBtn.textContent = jsonHidden ? "Show JSON" : "Hide JSON";
+    });
+    parseBtn.addEventListener("click", parseAndRender);
+    parseAndRender();
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) parseAndRender();
+    });
+  </script>
+</body>
+</html>
