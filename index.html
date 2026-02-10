@@ -5,17 +5,6 @@
     <title>JSON Beautifier</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<div class="settings-backdrop" id="filterBackdrop">
-    <div class="settings-dialog">
-        <h2 id="filterTitle">過濾欄位 (Filter Keys)</h2>
-        <div id="filterOptions" class="filter-options-container">
-        </div>
-        <div class="filter-actions">
-            <button class="btn-done" id="confirmFilterBtn">確認</button>
-            <button class="secondary btn-done" onclick="document.getElementById('filterBackdrop').classList.remove('open')">取消</button>
-        </div>
-    </div>
-</div>
 <body class="theme-dark font-medium">
 
 <h1>JSON Beautifier</h1>
@@ -39,18 +28,40 @@
     </div>
 </div>
 
+<div class="settings-backdrop" id="filterBackdrop">
+    <div class="settings-dialog">
+        <h2 style="margin-top:0; margin-bottom:16px;">過濾顯示欄位</h2>
+
+        <div style="margin-bottom: 12px;">
+            <button class="secondary" id="toggleAllFilterBtn" style="width: 100%; border-style: dashed;">全選 / 取消全選</button>
+        </div>
+
+        <div id="filterOptions" class="filter-options-container" style="max-height: 300px; overflow-y: auto; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--border); padding-top: 15px;">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+            <button class="secondary" id="cancelFilterBtn" style="flex: 1;">取消</button>
+            <button class="btn-done" id="confirmFilterBtn" style="flex: 1; margin-top: 0;">確認</button>
+        </div>
+    </div>
+</div>
+
 <div class="settings-backdrop" id="settingsBackdrop">
     <div class="settings-dialog">
-        <h2 id="settingsTitle">偏好設定</h2>
+        <h2 id="settingsTitle" style="margin-top:0; margin-bottom:24px;">偏好設定</h2>
+
         <div class="settings-row">
-            <span class="settings-label">主題</span>
+            <span class="settings-label">主題介面</span>
             <div class="settings-options">
                 <button class="secondary theme-opt" data-theme="dark">Tokyo Night</button>
-                <button class="secondary theme-opt" data-theme="light">Light</button>
-                <button class="secondary theme-opt" data-theme="dracula">Dracula</button>
+                <button class="secondary theme-opt" data-theme="onedark">One Dark</button>
+                <button class="secondary theme-opt" data-theme="monokai">Monokai Pro</button>
                 <button class="secondary theme-opt" data-theme="nord">Nord</button>
+                <button class="secondary theme-opt" data-theme="cyberpunk">Cyberpunk</button>
+                <button class="secondary theme-opt" data-theme="light">Light</button>
             </div>
         </div>
+
         <div class="settings-row">
             <span class="settings-label">字體大小</span>
             <div class="settings-options">
@@ -59,14 +70,19 @@
                 <button class="secondary font-opt" data-font="large">大</button>
             </div>
         </div>
+
         <div class="settings-row">
-            <span class="settings-label">語言</span>
+            <span class="settings-label">介面語言</span>
             <div class="settings-options">
                 <button class="secondary lang-opt" data-lang="zh">繁體中文</button>
                 <button class="secondary lang-opt" data-lang="en">English</button>
             </div>
         </div>
-        <button class="btn-done" onclick="document.getElementById('settingsBackdrop').classList.remove('open')">完成</button>
+
+        <div style="display: flex; gap: 12px; margin-top: 10px;">
+            <button class="secondary" id="cancelSettingsBtn" style="flex: 1;">取消</button>
+            <button class="btn-done" id="settingsDoneBtn" style="flex: 1; margin-top: 0;">完成並儲存</button>
+        </div>
     </div>
 </div>
 

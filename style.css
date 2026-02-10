@@ -21,7 +21,9 @@ body.theme-light { --bg: #eef0f4; --text: #2c2e3a; --panel: #fff; --border: #c4c
 body.theme-dracula { --bg: #282a36; --text: #f8f8f2; --panel: #44475a; --border: #6272a4; --primary: #bd93f9; --primary-hover: #d4b4ff; --secondary: #6272a4; --secondary-hover: #7c8cb8; --key: #8be9fd; --key-index: #ff79c6; --string: #50fa7b; --number: #ffb86c; --muted: #6272a4; --error: #ff5555; --hover-bg: rgba(189, 147, 249, 0.15); }
 body.theme-nord { --bg: #2e3440; --text: #d8dee9; --panel: #3b4252; --border: #4c566a; --primary: #88c0d0; --primary-hover: #8fbcbb; --secondary: #4c566a; --secondary-hover: #5e6778; --key: #81a1c1; --key-index: #b48ead; --string: #a3be8c; --number: #d08770; --muted: #4c566a; --error: #bf616a; --hover-bg: rgba(136, 192, 208, 0.15); }
 body.theme-gruvbox { --bg: #282828; --text: #ebdbb2; --panel: #3c3836; --border: #504945; --primary: #fe8019; --primary-hover: #d65d0e; --secondary: #504945; --secondary-hover: #665c54; --key: #83a598; --key-index: #d3869b; --string: #b8bb26; --number: #fabd2f; --muted: #928374; --error: #fb4934; --hover-bg: rgba(254, 128, 25, 0.15); }
-body.theme-onedark { --bg: #282c34; --text: #abb2bf; --panel: #21252b; --border: #3e4451; --primary: #61afef; --primary-hover: #7eb8f0; --secondary: #3e4451; --secondary-hover: #565c64; --key: #e06c75; --key-index: #c678dd; --string: #98c379; --number: #d19a66; --muted: #5c6370; --error: #e06c75; --hover-bg: rgba(97, 175, 239, 0.15); }
+body.theme-onedark { --bg: #282c34; --text: #abb2bf; --panel: #21252b; --border: #3e4451; --primary: #61afef; --primary-hover: #528bff; --secondary: #3e4451; --secondary-hover: #4b5263; --key: #e06c75; --key-index: #c678dd; --string: #98c379; --number: #d19a66; --muted: #5c6370; --error: #e06c75; --hover-bg: rgba(97, 175, 239, 0.1); }
+body.theme-monokai { --bg: #2d2a2e; --text: #fcfcfa; --panel: #221f22; --border: #403e41; --primary: #ffd866; --primary-hover: #ffcf40; --secondary: #403e41; --secondary-hover: #4d4d4d; --key: #ff6188; --key-index: #ab9df2; --string: #a9dc76; --number: #fc9867; --muted: #727072; --error: #ff6188; --hover-bg: rgba(255, 216, 102, 0.1); }
+body.theme-cyberpunk { --bg: #000b1e; --text: #00ff9f; --panel: #00162d; --border: #00d2ff; --primary: #f300ff; --primary-hover: #ff00ea; --secondary: #00162d; --secondary-hover: #002d5a; --key: #00d2ff; --key-index: #ffff00; --string: #00ff9f; --number: #ff0055; --muted: #005670; --error: #ff0055; --hover-bg: rgba(243, 0, 255, 0.15); }
 body.theme-rose { --bg: #1c1917; --text: #e7e5e4; --panel: #292524; --border: #44403c; --primary: #f472b6; --primary-hover: #fb7185; --secondary: #44403c; --secondary-hover: #57534e; --key: #67e8f9; --key-index: #c084fc; --string: #86efac; --number: #fcd34d; --muted: #78716c; --error: #f87171; --hover-bg: rgba(244, 114, 182, 0.15); }
 
 h1 { font-size: calc(var(--font-size) * 1.25); margin: 0 0 12px 0; color: var(--primary); }
@@ -45,14 +47,23 @@ button.secondary:hover { background: var(--secondary-hover); }
 
 /* Tree Node Styling */
 .node { margin: 2px 0; font-size: var(--font-size); }
-.node-head { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; padding: 2px 4px; border-radius: 4px; }
+.node-head {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  white-space: nowrap;
+}
 .node-head:hover { background: var(--hover-bg); }
 .toggle { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; color: var(--muted); }
 .toggle.collapsed::before { content: "▶"; font-size: 10px; }
 .toggle.expanded::before { content: "▼"; font-size: 10px; }
 .node-body { margin-left: 20px; border-left: 1px solid var(--border); }
 .key { color: var(--key); font-weight: 500; }
-.key-index { color: var(--key-index); font-weight: 500; }
+.key-index {
+  color: var(--key-index);
+  font-weight: bold;
+  margin-right: 4px; /* 與箭頭保持距離 */
+}
 .string { color: var(--string); }
 .number { color: var(--number); }
 .boolean { color: var(--number); font-weight: bold; }
@@ -177,3 +188,111 @@ button.secondary:hover { background: var(--secondary-hover); }
   gap: 10px;
   justify-content: flex-end;
 }
+
+.ellipsis {
+  color: var(--muted);
+}
+
+/* 確保 Index 數字樣式正確 */
+.key-index {
+  color: var(--key-index);
+  font-weight: bold;
+}
+
+.toggle {
+  margin-right: 6px;
+}
+
+/* 當彈窗開啟時，鎖定頁面捲動 */
+body.modal-open {
+  overflow: hidden;
+}
+
+.settings-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px); /* 更強的模糊 */
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.settings-dialog {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 95%;
+    max-width: 550px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    transform: scale(1);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.settings-backdrop.open { display: flex; }
+
+.settings-row {
+    margin-bottom: 28px;
+}
+
+.settings-label {
+    display: block;
+    font-size: 14px;
+    color: var(--primary); /* 改用主色調提示 */
+    margin-bottom: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.settings-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* 讓按鈕看起來更像膠囊 */
+.settings-options button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.settings-options button:hover {
+    background: var(--hover-bg);
+    border-color: var(--primary);
+}
+
+.settings-options button.is-active {
+    background: var(--primary);
+    color: var(--bg);
+    border-color: var(--primary);
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.btn-done {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--primary);
+    color: var(--bg);
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-done:hover { opacity: 0.9; }
