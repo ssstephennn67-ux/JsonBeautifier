@@ -10,18 +10,143 @@
       font-family: ui-monospace, "Cascadia Code", "SF Mono", Monaco, monospace;
       margin: 0;
       padding: 16px;
-      background: #1a1b26;
-      color: #c0caf5;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background: var(--bg);
+      color: var(--text);
+      --font-size: 13px;
     }
-    h1 { font-size: 1.25rem; margin: 0 0 12px 0; color: #7aa2f7; }
+    body.font-small { --font-size: 12px; }
+    body.font-medium { --font-size: 13px; }
+    body.font-large { --font-size: 15px; }
+    body.font-xlarge { --font-size: 17px; }
+    body.theme-dark {
+      --bg: #1a1b26;
+      --text: #c0caf5;
+      --panel: #24283b;
+      --border: #3b4261;
+      --primary: #7aa2f7;
+      --primary-hover: #89b4fa;
+      --secondary: #3b4261;
+      --secondary-hover: #414868;
+      --key: #7dcfff;
+      --key-index: #bb9af7;
+      --string: #9ece6a;
+      --number: #ff9e64;
+      --muted: #565f89;
+      --error: #f7768e;
+      --hover-bg: rgba(122, 162, 247, 0.15);
+    }
+    body.theme-light {
+      --bg: #eef0f4;
+      --text: #2c2e3a;
+      --panel: #fff;
+      --border: #c4c8d4;
+      --primary: #2e7de0;
+      --primary-hover: #4a8ee6;
+      --secondary: #c4c8d4;
+      --secondary-hover: #a8adb8;
+      --key: #0d6db4;
+      --key-index: #6e3b8c;
+      --string: #2d7d46;
+      --number: #c44c0a;
+      --muted: #6b6f7d;
+      --error: #c42b2b;
+      --hover-bg: rgba(46, 125, 224, 0.1);
+    }
+    body.theme-dracula {
+      --bg: #282a36;
+      --text: #f8f8f2;
+      --panel: #44475a;
+      --border: #6272a4;
+      --primary: #bd93f9;
+      --primary-hover: #d4b4ff;
+      --secondary: #6272a4;
+      --secondary-hover: #7c8cb8;
+      --key: #8be9fd;
+      --key-index: #ff79c6;
+      --string: #50fa7b;
+      --number: #ffb86c;
+      --muted: #6272a4;
+      --error: #ff5555;
+      --hover-bg: rgba(189, 147, 249, 0.15);
+    }
+    body.theme-nord {
+      --bg: #2e3440;
+      --text: #d8dee9;
+      --panel: #3b4252;
+      --border: #4c566a;
+      --primary: #88c0d0;
+      --primary-hover: #8fbcbb;
+      --secondary: #4c566a;
+      --secondary-hover: #5e6778;
+      --key: #81a1c1;
+      --key-index: #b48ead;
+      --string: #a3be8c;
+      --number: #d08770;
+      --muted: #4c566a;
+      --error: #bf616a;
+      --hover-bg: rgba(136, 192, 208, 0.15);
+    }
+    body.theme-gruvbox {
+      --bg: #282828;
+      --text: #ebdbb2;
+      --panel: #3c3836;
+      --border: #504945;
+      --primary: #fe8019;
+      --primary-hover: #d65d0e;
+      --secondary: #504945;
+      --secondary-hover: #665c54;
+      --key: #83a598;
+      --key-index: #d3869b;
+      --string: #b8bb26;
+      --number: #fabd2f;
+      --muted: #928374;
+      --error: #fb4934;
+      --hover-bg: rgba(254, 128, 25, 0.15);
+    }
+    body.theme-onedark {
+      --bg: #282c34;
+      --text: #abb2bf;
+      --panel: #21252b;
+      --border: #3e4451;
+      --primary: #61afef;
+      --primary-hover: #7eb8f0;
+      --secondary: #3e4451;
+      --secondary-hover: #565c64;
+      --key: #e06c75;
+      --key-index: #c678dd;
+      --string: #98c379;
+      --number: #d19a66;
+      --muted: #5c6370;
+      --error: #e06c75;
+      --hover-bg: rgba(97, 175, 239, 0.15);
+    }
+    body.theme-rose {
+      --bg: #1c1917;
+      --text: #e7e5e4;
+      --panel: #292524;
+      --border: #44403c;
+      --primary: #f472b6;
+      --primary-hover: #fb7185;
+      --secondary: #44403c;
+      --secondary-hover: #57534e;
+      --key: #67e8f9;
+      --key-index: #c084fc;
+      --string: #86efac;
+      --number: #fcd34d;
+      --muted: #78716c;
+      --error: #f87171;
+      --hover-bg: rgba(244, 114, 182, 0.15);
+    }
+    h1 { font-size: calc(var(--font-size) * 1.25); margin: 0 0 12px 0; color: var(--primary); }
     .toolbar {
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .main {
       display: flex;
@@ -52,38 +177,42 @@
       flex: 1;
       min-height: 200px;
       padding: 12px;
-      background: #24283b;
-      border: 1px solid #3b4261;
+      background: var(--panel);
+      border: 1px solid var(--border);
       border-radius: 8px;
-      color: #c0caf5;
-      font-size: 13px;
+      color: var(--text);
+      font-size: var(--font-size);
       resize: vertical;
     }
-    textarea::placeholder { color: #565f89; }
+    textarea::placeholder { color: var(--muted); }
     button {
       padding: 8px 14px;
       border: none;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: var(--font-size);
       cursor: pointer;
-      background: #7aa2f7;
-      color: #1a1b26;
+      background: var(--primary);
+      color: var(--bg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
-    button:hover { background: #89b4fa; }
-    button.secondary { background: #3b4261; color: #c0caf5; }
-    button.secondary:hover { background: #414868; }
-    .error { color: #f7768e; margin-top: 8px; }
+    button:hover { background: var(--primary-hover); }
+    button.secondary { background: var(--secondary); color: var(--text); }
+    button.secondary:hover { background: var(--secondary-hover); }
+    .error { color: var(--error); margin-top: 8px; }
     .tree {
       flex: 1;
       padding: 12px;
-      background: #24283b;
+      background: var(--panel);
       border-radius: 8px;
-      border: 1px solid #3b4261;
+      border: 1px solid var(--border);
       overflow: auto;
+      scrollbar-gutter: stable;
     }
     .node {
       margin: 2px 0;
-      font-size: 13px;
+      font-size: var(--font-size);
     }
     .node-head {
       display: flex;
@@ -94,27 +223,45 @@
       padding: 2px 4px;
       border-radius: 4px;
     }
-    .node-head:hover { background: rgba(122, 162, 247, 0.15); }
+    .node-head:hover { background: var(--hover-bg); }
     .toggle {
       width: 16px;
       height: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
-      color: #565f89;
+      font-size: calc(var(--font-size) * 0.77);
+      color: var(--muted);
     }
     .toggle.collapsed::before { content: "▶"; }
     .toggle.expanded::before { content: "▼"; }
-    .key { color: #7dcfff; }
-    .key.index { color: #bb9af7; margin-right: 4px; }
-    .bracket { color: #565f89; }
-    .string { color: #9ece6a; }
-    .number { color: #ff9e64; }
-    .boolean { color: #ff9e64; }
-    .null { color: #565f89; }
-    .count { color: #565f89; font-size: 11px; }
-    .children { margin-left: 20px; border-left: 1px solid #3b4261; padding-left: 8px; }
+    .key { color: var(--key); }
+    .key.index { color: var(--key-index); margin-right: 4px; }
+    .bracket { color: var(--muted); }
+    .string { color: var(--string); }
+    .number { color: var(--number); }
+    .boolean { color: var(--number); }
+    .null { color: var(--muted); }
+    .count { color: var(--muted); font-size: calc(var(--font-size) * 0.85); }
+    .children { margin-left: 20px; border-left: 1px solid var(--border); padding-left: 8px; }
+    
+    /* 按鈕圖示樣式 */
+    .btn-icon {
+      width: 16px;
+      height: 16px;
+      min-width: 16px;
+      min-height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-icon svg {
+      width: 100%;
+      height: 100%;
+      fill: currentColor;
+      display: block;
+    }
+
     .array-actions {
       display: inline-flex;
       align-items: center;
@@ -122,42 +269,32 @@
       margin-left: 10px;
     }
     .array-actions button {
-      padding: 4px 10px;
-      font-size: 12px;
-      line-height: 1.2;
-      background: #3b4261;
-      color: #c0caf5;
+      padding: 4px 6px;
+      background: var(--secondary);
+      color: var(--text);
     }
-    .array-actions button:hover { background: #414868; }
+
     .key-filter-wrap {
       display: inline-flex;
       align-items: center;
       position: relative;
-      margin-left: 10px;
     }
     .key-filter-trigger {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      padding: 4px 10px;
-      font-size: 12px;
-      border: 1px solid #3b4261;
-      border-radius: 8px;
-      background: rgba(26, 27, 38, 0.9);
-      color: #a9b1d6;
-      cursor: pointer;
-      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--text);
     }
-    .key-filter-trigger:hover {
-      background: #3b4261;
-      color: #c0caf5;
-    }
-    .key-filter-trigger .arrow {
-      font-size: 10px;
-      transition: transform 0.2s;
-    }
-    .key-filter-wrap.expanded .key-filter-trigger .arrow {
-      transform: rotate(180deg);
+    .key-filter-trigger .key-filter-count {
+      font-size: calc(var(--font-size) * 0.85);
+      color: var(--primary);
+      font-weight: bold;
+      min-width: 12px;
+      text-align: center;
     }
     .key-filter-menu {
       display: none;
@@ -165,70 +302,126 @@
       top: 100%;
       left: 0;
       margin-top: 4px;
-      padding: 10px;
-      background: rgba(36, 40, 59, 0.98);
-      border: 1px solid #3b4261;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 10;
-      min-width: 140px;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      min-width: 320px;
+      max-width: 90vw;
     }
-    .key-filter-wrap.expanded .key-filter-menu {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .key-filter-label {
-      font-size: 11px;
-      color: #565f89;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .key-filter-wrap.expanded .key-filter-menu { display: flex; flex-direction: column; gap: 8px; }
+    .key-filter-pills-scroll {
+      max-height: 280px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-gutter: stable;
     }
     .key-filter-pills {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px 10px;
+      padding-right: 12px; /* keep space so content won't be eaten by scrollbar */
     }
     .key-filter-pill {
-      display: block;
-      width: 100%;
-      padding: 6px 10px;
-      font-size: 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #3b4261;
-      color: #a9b1d6;
       text-align: left;
-      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+      padding: 5px 8px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: calc(var(--font-size) * 0.92);
     }
-    .key-filter-pill:hover {
-      background: #414868;
-      color: #c0caf5;
+    .key-filter-pill.active { background: var(--primary); color: var(--bg); }
+    .key-filter-pill.all-pill { grid-column: 1 / -1; }
+
+    .toolbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+    .settings-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
     }
-    .key-filter-pill.active {
-      background: #7aa2f7;
-      color: #1a1b26;
-      box-shadow: 0 0 0 1px rgba(122, 162, 247, 0.4);
+    .settings-backdrop.open { display: flex; }
+    .settings-dialog {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      min-width: 280px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
-    .key-filter-pill.all-pill.active {
-      background: #9ece6a;
-      color: #1a1b26;
+    .settings-dialog h2 { margin: 0 0 16px 0; font-size: calc(var(--font-size) * 1.1); color: var(--primary); }
+    .settings-row { margin-bottom: 14px; }
+    .settings-row:last-child { margin-bottom: 0; }
+    .settings-label { display: block; font-size: calc(var(--font-size) * 0.92); color: var(--muted); margin-bottom: 6px; }
+    .settings-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .settings-options button {
+      padding: 6px 12px;
+      font-size: calc(var(--font-size) * 0.92);
     }
-    .key-filter-hidden {
-      display: none !important;
-    }
+    .settings-options button.active { background: var(--primary); color: var(--bg); }
+    .settings-options button:not(.active).secondary { background: var(--secondary); color: var(--text); }
+    .key-filter-hidden { display: none !important; }
   </style>
 </head>
-<body>
+<body class="theme-dark">
   <h1>JSON Beautifier</h1>
   <div class="toolbar">
     <button type="button" id="parseBtn">Parse / Beautify</button>
-    <button type="button" class="secondary" id="hideJsonBtn">Hide JSON</button>
-    <button type="button" class="secondary" id="expandAllBtn">Expand All</button>
-    <button type="button" class="secondary" id="collapseAllBtn">Collapse All</button>
-    <button type="button" class="secondary" id="collapseAllChildBtn">Collapse all child</button>
+    <button type="button" class="secondary" id="hideJsonBtn">Hide 原本JSON</button>
+    <button type="button" class="secondary" id="expandAllBtn" title="Expand All">
+      <span class="btn-icon"><svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg></span>
+    </button>
+    <button type="button" class="secondary" id="collapseAllBtn" title="Collapse All">
+      <span class="btn-icon"><svg viewBox="0 0 24 24"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg></span>
+    </button>
+    <button type="button" class="secondary" id="collapseAllChildBtn" title="Collapse All Children">
+      <span class="btn-icon"><svg viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></svg></span>
+    </button>
+    <div class="toolbar-divider"></div>
+    <button type="button" class="secondary" id="settingsBtn" title="Settings">
+      <span class="btn-icon"><svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></span>
+    </button>
   </div>
+
+  <div class="settings-backdrop" id="settingsBackdrop">
+    <div class="settings-dialog">
+      <h2 id="settingsTitle">Settings</h2>
+      <div class="settings-row">
+        <span class="settings-label" id="settingsLangLabel">Language</span>
+        <div class="settings-options">
+          <button type="button" class="secondary lang-opt" data-lang="zh">繁中</button>
+          <button type="button" class="secondary lang-opt" data-lang="en">English</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label" id="settingsThemeLabel">Theme</span>
+        <div class="settings-options" id="themeOptions">
+          <button type="button" class="secondary theme-opt" data-theme="dark">Dark</button>
+          <button type="button" class="secondary theme-opt" data-theme="light">Light</button>
+          <button type="button" class="secondary theme-opt" data-theme="dracula">Dracula</button>
+          <button type="button" class="secondary theme-opt" data-theme="nord">Nord</button>
+          <button type="button" class="secondary theme-opt" data-theme="gruvbox">Gruvbox</button>
+          <button type="button" class="secondary theme-opt" data-theme="onedark">One Dark</button>
+          <button type="button" class="secondary theme-opt" data-theme="rose">Rose</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label" id="settingsFontLabel">字體大小</span>
+        <div class="settings-options">
+          <button type="button" class="secondary font-opt" data-font="small">小</button>
+          <button type="button" class="secondary font-opt" data-font="medium">中</button>
+          <button type="button" class="secondary font-opt" data-font="large">大</button>
+          <button type="button" class="secondary font-opt" data-font="xlarge">特大</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <div class="main">
     <div class="panel-left">
       <textarea id="input" placeholder='Paste JSON here'>{"items": [{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}], "count": 2}</textarea>
@@ -250,43 +443,145 @@
     const hideJsonBtn = document.getElementById("hideJsonBtn");
     const panelLeft = document.querySelector(".panel-left");
     const panelRight = document.querySelector(".panel-right");
+    const settingsBackdrop = document.getElementById("settingsBackdrop");
+    const settingsTitle = document.getElementById("settingsTitle");
+    const settingsLangLabel = document.getElementById("settingsLangLabel");
+    const settingsThemeLabel = document.getElementById("settingsThemeLabel");
+    const settingsFontLabel = document.getElementById("settingsFontLabel");
 
     let rootNodeEl = null;
     let jsonHidden = false;
+    let isFirstParse = true;
 
-    function setError(msg) {
-      errorEl.textContent = msg || "";
-    }
+    const i18n = {
+      zh: {
+        title: "JSON Beautifier",
+        parseBtn: "Parse / Beautify",
+        hideJsonShow: "Show 原本JSON",
+        hideJsonHide: "Hide 原本JSON",
+        placeholder: "貼上 JSON 到這裡",
+        expandAll: "Expand All",
+        collapseAll: "Collapse All",
+        collapseAllChild: "Collapse All Children",
+        settings: "設定",
+        language: "語言",
+        theme: "主題",
+        dark: "Dark",
+        light: "Light",
+        dracula: "Dracula",
+        nord: "Nord",
+        gruvbox: "Gruvbox",
+        onedark: "One Dark",
+        rose: "玫瑰",
+        fontSize: "字體大小",
+        fontSmall: "小",
+        fontMedium: "中",
+        fontLarge: "大",
+        fontXlarge: "特大",
+        all: "All",
+        items: "項",
+        keys: "鍵",
+        invalidJson: "Invalid JSON: "
+      },
+      en: {
+        title: "JSON Beautifier",
+        parseBtn: "Parse / Beautify",
+        hideJsonShow: "Show original JSON",
+        hideJsonHide: "Hide original JSON",
+        placeholder: "Paste JSON here",
+        expandAll: "Expand All",
+        collapseAll: "Collapse All",
+        collapseAllChild: "Collapse All Children",
+        settings: "Settings",
+        language: "Language",
+        theme: "Theme",
+        dark: "Dark",
+        light: "Light",
+        dracula: "Dracula",
+        nord: "Nord",
+        gruvbox: "Gruvbox",
+        onedark: "One Dark",
+        rose: "Rose",
+        fontSize: "Font size",
+        fontSmall: "Small",
+        fontMedium: "Medium",
+        fontLarge: "Large",
+        fontXlarge: "X-Large",
+        all: "All",
+        items: "items",
+        keys: "keys",
+        invalidJson: "Invalid JSON: "
+      }
+    };
 
-    function escapeHtml(str) {
-      const div = document.createElement("div");
-      div.textContent = str;
-      return div.innerHTML;
-    }
+    let currentLang = localStorage.getItem("json-beautifier-lang") || "zh";
+    let currentTheme = localStorage.getItem("json-beautifier-theme") || "dark";
+    let currentFont = localStorage.getItem("json-beautifier-font") || "medium";
+    const FONT_IDS = ["small", "medium", "large", "xlarge"];
 
-    function getNodeId() {
-      return "n_" + Math.random().toString(36).slice(2, 11);
-    }
-
-    function isObjectOrArray(value) {
-      return value !== null && typeof value === "object";
-    }
-
-    function collectExpandableIds(containerEl, expand) {
-      const toggles = containerEl.querySelectorAll(".toggle.expanded, .toggle.collapsed");
-      toggles.forEach((t) => {
-        const head = t.closest(".node-head");
-        if (!head) return;
-        const node = head.closest(".node");
-        if (!node) return;
-        const id = node.dataset.nodeId;
-        if (id) {
-          const isExpanded = t.classList.contains("expanded");
-          if (expand && !isExpanded) t.click();
-          if (!expand && isExpanded) t.click();
-        }
+    const THEME_IDS = ["dark", "light", "dracula", "nord", "gruvbox", "onedark", "rose"];
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem("json-beautifier-theme", theme);
+      document.body.classList.remove(...THEME_IDS.map(id => "theme-" + id));
+      document.body.classList.add("theme-" + theme);
+      document.querySelectorAll(".theme-opt").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.theme === theme);
       });
     }
+
+    function applyFontSize(font) {
+      currentFont = font;
+      localStorage.setItem("json-beautifier-font", font);
+      document.body.classList.remove(...FONT_IDS.map(id => "font-" + id));
+      document.body.classList.add("font-" + font);
+      document.querySelectorAll(".font-opt").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.font === font);
+      });
+    }
+
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem("json-beautifier-lang", lang);
+      const t = i18n[lang];
+      document.querySelector("h1").textContent = t.title;
+      parseBtn.textContent = t.parseBtn;
+      hideJsonBtn.textContent = jsonHidden ? t.hideJsonShow : t.hideJsonHide;
+      inputEl.placeholder = t.placeholder;
+      expandAllBtn.title = t.expandAll;
+      collapseAllBtn.title = t.collapseAll;
+      collapseAllChildBtn.title = t.collapseAllChild;
+      settingsBtn.title = t.settings;
+      settingsTitle.textContent = t.settings;
+      settingsLangLabel.textContent = t.language;
+      settingsThemeLabel.textContent = t.theme;
+      settingsFontLabel.textContent = t.fontSize;
+      document.querySelectorAll(".font-opt").forEach(btn => {
+        const id = btn.dataset.font;
+        btn.textContent = t["font" + id.charAt(0).toUpperCase() + id.slice(1)];
+      });
+      document.querySelectorAll(".theme-opt").forEach(btn => {
+        const id = btn.dataset.theme;
+        btn.textContent = t[id] || id;
+      });
+      document.querySelectorAll(".lang-opt").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === lang);
+      });
+      if (rootNodeEl) parseAndRender(true);
+    }
+
+    function updateHideJsonBtnText() {
+      hideJsonBtn.textContent = jsonHidden ? i18n[currentLang].hideJsonShow : i18n[currentLang].hideJsonHide;
+    }
+
+    // SVG Icons (fill="currentColor" so they show with button text color)
+    const ICON_FILTER = `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>`;
+    const ICON_EXPAND = `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>`;
+    const ICON_COLLAPSE = `<svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>`;
+
+    function setError(msg) { errorEl.textContent = msg ? (i18n[currentLang].invalidJson + msg) : ""; }
+    function escapeHtml(str) { const div = document.createElement("div"); div.textContent = str; return div.innerHTML; }
+    function getNodeId() { return "n_" + Math.random().toString(36).slice(2, 11); }
 
     function setExpandRecursive(nodeEl, expand) {
       const toggle = nodeEl.querySelector(".toggle");
@@ -299,40 +594,23 @@
       }
     }
 
-    function expandOrCollapseAllForArray(arrayNodeEl, expand) {
-      const children = arrayNodeEl.querySelector(".children");
-      if (!children) return;
-      children.querySelectorAll(".node").forEach((child) => setExpandRecursive(child, expand));
-    }
-
-    function collectCollapsibleDescendants(nodeEl, list) {
-      const childrenEl = nodeEl.querySelector(".children");
-      const toggle = nodeEl.querySelector(".toggle:not(.empty)");
-      if (!childrenEl || !toggle) return;
-      childrenEl.querySelectorAll(":scope > .array-item-wrapper").forEach((w) => {
-        const n = w.querySelector(":scope > .node");
-        if (n) collectCollapsibleDescendants(n, list);
-      });
-      childrenEl.querySelectorAll(":scope > .node").forEach((n) => collectCollapsibleDescendants(n, list));
-      list.push(nodeEl);
-    }
-
-    function collapseAllChild(rootNodeEl) {
+    function collapseAllChild(root) {
       const list = [];
-      const childrenEl = rootNodeEl.querySelector(".children");
-      if (!childrenEl) return;
-      childrenEl.querySelectorAll(":scope > .array-item-wrapper").forEach((w) => {
-        const n = w.querySelector(":scope > .node");
-        if (n) collectCollapsibleDescendants(n, list);
-      });
-      childrenEl.querySelectorAll(":scope > .node").forEach((n) => collectCollapsibleDescendants(n, list));
-      list.reverse();
-      list.forEach((node) => {
+      const traverse = (node) => {
+        const children = node.querySelector(".children");
+        if (!children) return;
+        Array.from(children.children).forEach(c => {
+          const innerNode = c.classList.contains('node') ? c : c.querySelector('.node');
+          if (innerNode) traverse(innerNode);
+        });
+        list.push(node);
+      };
+      traverse(root);
+      list.forEach(node => {
         const t = node.querySelector(".toggle");
         const c = node.querySelector(".children");
-        if (t && !t.classList.contains("empty") && c) {
-          t.classList.add("collapsed");
-          t.classList.remove("expanded");
+        if (t && c && t.classList.contains("expanded")) {
+          t.classList.replace("expanded", "collapsed");
           c.style.display = "none";
         }
       });
@@ -340,66 +618,28 @@
 
     function collectObjectKeysFromArray(arr) {
       const set = new Set();
-      arr.forEach((item) => {
-        if (item !== null && typeof item === "object" && !Array.isArray(item)) {
-          Object.keys(item).forEach((k) => set.add(k));
-        }
-      });
+      arr.forEach((item) => { if (item && typeof item === "object" && !Array.isArray(item)) Object.keys(item).forEach(k => set.add(k)); });
       return Array.from(set).sort();
     }
 
     function applyArrayKeyFilter(arrayNodeEl, selectedKeys) {
       const childrenEl = arrayNodeEl.querySelector(".children");
       if (!childrenEl) return;
-      
       const keySet = selectedKeys.length ? new Set(selectedKeys) : null;
-      const isAll = keySet === null;
       
-      // 搵出 Array 入面所有嘅直接子項 (wrapper)
-      const wrappers = childrenEl.querySelectorAll(":scope > .array-item-wrapper");
-      
-      wrappers.forEach((wrapper) => {
+      childrenEl.querySelectorAll(":scope > .array-item-wrapper").forEach((wrapper) => {
         const objNode = wrapper.querySelector(":scope > .node");
-        if (!objNode) return;
-
-        // 如果係 Object，我哋要檢查佢入面邊啲 key 應該 show
-        if (objNode.getAttribute("data-is-object") === "true") {
+        if (objNode && objNode.dataset.isObject === "true") {
           const objChildren = objNode.querySelector(".children");
-          if (!objChildren) return;
-
           let hasVisibleKey = false;
-          
-          // 遍歷 Object 嘅所有直接子項 (即係啲 Key)
           Array.from(objChildren.children).forEach((row) => {
-            if (!row.classList.contains("node")) return;
-            
             const rowKey = row.getAttribute("data-key");
-            const shouldShowRow = isAll || keySet.has(rowKey);
-            
-            if (shouldShowRow) {
-              row.classList.remove("key-filter-hidden");
-              hasVisibleKey = true;
-            } else {
-              row.classList.add("key-filter-hidden");
-            }
+            const show = !keySet || keySet.has(rowKey);
+            row.classList.toggle("key-filter-hidden", !show);
+            if (show) hasVisibleKey = true;
           });
-
-          // 【關鍵點】如果呢個 Object 一個選中嘅 Key 都冇，就隱藏成個 Object Wrapper
-          if (!isAll && !hasVisibleKey) {
-            wrapper.classList.add("key-filter-hidden");
-          } else {
-            wrapper.classList.remove("key-filter-hidden");
-            // 既然 Filter 緊，通常想直接見到內容，所以我自動 expand 佢
-            if (!isAll) setExpandRecursive(objNode, true);
-          }
-        } else {
-          // 如果 Array 入面唔係 Object (例如係 String/Number)，
-          // 既然依家係按 Key Filter，非 Object 嘅項喺非 "All" 模式下通常應該隱藏
-          if (isAll) {
-            wrapper.classList.remove("key-filter-hidden");
-          } else {
-            wrapper.classList.add("key-filter-hidden");
-          }
+          wrapper.classList.toggle("key-filter-hidden", !hasVisibleKey);
+          if (keySet) setExpandRecursive(objNode, true);
         }
       });
     }
@@ -407,173 +647,163 @@
     function renderValue(value, keyLabel, indexLabel) {
       const nodeId = getNodeId();
       const dataKeyAttr = keyLabel != null ? ` data-key="${escapeHtml(keyLabel)}"` : "";
-      let keyPart = "";
-      if (indexLabel != null) keyPart += `<span class="key index">${escapeHtml(String(indexLabel))}</span>`;
-      if (keyLabel != null) keyPart += `<span class="key">${escapeHtml(String(keyLabel))}</span>`;
-      if (value === null) {
-        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="null">null</span></span></div>`;
+      let keyPart = (indexLabel ? `<span class="key index">${escapeHtml(indexLabel)}</span>` : "") + 
+                    (keyLabel ? `<span class="key">${escapeHtml(keyLabel)}</span>` : "");
+
+      if (value === null || typeof value !== "object") {
+        let valClass = value === null ? "null" : typeof value;
+        let displayVal = value === null ? "null" : (typeof value === "string" ? `"${escapeHtml(value)}"` : value);
+        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="${valClass}">${displayVal}</span></span></div>`;
       }
-      if (typeof value === "boolean") {
-        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="boolean">${value}</span></span></div>`;
-      }
-      if (typeof value === "number") {
-        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="number">${value}</span></span></div>`;
-      }
-      if (typeof value === "string") {
-        return `<div class="node" data-node-id="${nodeId}"${dataKeyAttr}><span class="node-head"><span class="toggle"></span>${keyPart}<span class="string">"${escapeHtml(value)}"</span></span></div>`;
-      }
-      if (Array.isArray(value)) {
-        const len = value.length;
+
+      const isArr = Array.isArray(value);
+      const items = isArr ? value : Object.keys(value);
+      const len = items.length;
+      
+      let actions = "";
+      if (isArr) {
         const allKeys = collectObjectKeysFromArray(value);
-        const keyFilterHtml = allKeys.length ? `<span class="key-filter-wrap"><button type="button" class="key-filter-trigger" title="Filter by key">Filter keys <span class="arrow">▼</span></button><span class="key-filter-menu"><span class="key-filter-label">Keys</span><span class="key-filter-pills"><button type="button" class="key-filter-pill all-pill active" data-key="" title="Show all">All</button>${allKeys.map((k) => `<button type="button" class="key-filter-pill" data-key="${escapeHtml(k)}" title="Toggle ${escapeHtml(k)}">${escapeHtml(k)}</button>`).join("")}</span></span></span>` : "";
-        const childNodes = value.map((item, i) => {
-          const keysAttr = (item !== null && typeof item === "object" && !Array.isArray(item)) ? ` data-object-keys="${escapeHtml(Object.keys(item).join(","))}"` : "";
-          return `<div class="array-item-wrapper"${keysAttr}>${renderValue(item, null, `[${i}]`)}</div>`;
-        }).join("");
-        return `
-          <div class="node" data-node-id="${nodeId}" data-is-array="true">
-            <span class="node-head">
-              <span class="toggle expanded"></span>
-              ${keyPart}
-              <span class="bracket">[</span>
-              <span class="count">${len} items</span>
-              <span class="bracket">]</span>
-              <span class="array-actions">
-                ${keyFilterHtml}
-                <button type="button" class="expand-all-array" title="Expand all">Expand all</button>
-                <button type="button" class="collapse-all-array" title="Collapse all">Collapse all</button>
+        let filterBtn = "";
+        if (allKeys.length) {
+          const t = i18n[currentLang];
+          filterBtn = `
+            <span class="key-filter-wrap">
+              <button type="button" class="key-filter-trigger" title="Filter Keys">
+                <span class="btn-icon">${ICON_FILTER}</span>
+                <span class="key-filter-count">${allKeys.length}</span>
+              </button>
+              <span class="key-filter-menu">
+                <div class="key-filter-pills-scroll">
+                  <div class="key-filter-pills">
+                    <button class="key-filter-pill all-pill active" data-key="">${t.all}</button>
+                    ${allKeys.map(k => `<button class="key-filter-pill" data-key="${escapeHtml(k)}">${escapeHtml(k)}</button>`).join('')}
+                  </div>
+                </div>
               </span>
-            </span>
-            <div class="children">${childNodes}</div>
-          </div>`;
+            </span>`;
+        }
+        actions = `<span class="array-actions">
+          ${filterBtn}
+          <button type="button" class="expand-all-array" title="Expand All"><span class="btn-icon">${ICON_EXPAND}</span></button>
+          <button type="button" class="collapse-all-array" title="Collapse All"><span class="btn-icon">${ICON_COLLAPSE}</span></button>
+        </span>`;
       }
-      const obj = value;
-      const keys = Object.keys(obj);
-      const childNodes = keys.map((k) => renderValue(obj[k], k, null)).join("");
+
+      const childHtml = isArr 
+        ? value.map((v, i) => `<div class="array-item-wrapper">${renderValue(v, null, `[${i}]`)}</div>`).join("")
+        : Object.keys(value).map(k => renderValue(value[k], k, null)).join("");
+
       return `
-        <div class="node" data-node-id="${nodeId}" data-is-object="true">
+        <div class="node" data-node-id="${nodeId}" data-is-${isArr?'array':'object'}="true"${dataKeyAttr}>
           <span class="node-head">
-            <span class="toggle expanded"></span>
-            ${keyPart}
-            <span class="bracket">{</span>
-            <span class="count">${keys.length} keys</span>
-            <span class="bracket">}</span>
+            <span class="toggle expanded"></span>${keyPart}
+            <span class="bracket">${isArr?'[':'{'}</span>
+            <span class="count">${len} ${isArr ? i18n[currentLang].items : i18n[currentLang].keys}</span>
+            <span class="bracket">${isArr?']':'}'}</span>
+            ${actions}
           </span>
-          <div class="children">${childNodes}</div>
+          <div class="children">${childHtml}</div>
         </div>`;
     }
 
-    function attachToggleListeners(containerEl) {
-      containerEl.querySelectorAll(".node-head").forEach((head) => {
-        const toggle = head.querySelector(".toggle");
+    // Single delegated click handler on the tree container (attach once so re-parse doesn't add duplicates)
+    function onTreeClick(e) {
+      const head = e.target.closest(".node-head");
+      if (head && !e.target.closest("button")) {
         const node = head.closest(".node");
+        const toggle = head.querySelector(".toggle");
         const children = node.querySelector(".children");
-        if (!toggle || toggle.classList.contains("empty")) return;
-        toggle.addEventListener("click", (e) => {
-          if (e.target.closest(".array-actions")) return;
-          if (!children) return;
-          const isExpanded = toggle.classList.contains("expanded");
-          toggle.classList.toggle("expanded", !isExpanded);
-          toggle.classList.toggle("collapsed", isExpanded);
-          children.style.display = isExpanded ? "none" : "block";
-        });
-      });
-      containerEl.querySelectorAll(".array-actions .expand-all-array").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const node = btn.closest(".node");
-          if (node) expandOrCollapseAllForArray(node, true);
-        });
-      });
-      containerEl.querySelectorAll(".array-actions .collapse-all-array").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const node = btn.closest(".node");
-          if (node) expandOrCollapseAllForArray(node, false);
-        });
-      });
-      containerEl.querySelectorAll(".key-filter-wrap").forEach((wrap) => {
-        const arrayNode = wrap.closest(".node[data-is-array='true']");
-        if (!arrayNode) return;
-        const trigger = wrap.querySelector(".key-filter-trigger");
-        const menu = wrap.querySelector(".key-filter-menu");
-        trigger.addEventListener("click", (e) => {
-          e.stopPropagation();
-          wrap.classList.toggle("expanded");
-        });
-        wrap.querySelectorAll(".key-filter-pill").forEach((pill) => {
-          pill.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const key = pill.getAttribute("data-key");
-            if (key === "") {
-              wrap.querySelectorAll(".key-filter-pill").forEach((p) => p.classList.remove("active"));
-              pill.classList.add("active");
-              applyArrayKeyFilter(arrayNode, []);
-              return;
-            }
-            pill.classList.toggle("active");
-            wrap.querySelector(".all-pill").classList.remove("active");
-            const selected = Array.from(wrap.querySelectorAll(".key-filter-pill.active:not(.all-pill)")).map((p) => p.getAttribute("data-key"));
-            if (selected.length === 0) {
-              wrap.querySelector(".all-pill").classList.add("active");
-              applyArrayKeyFilter(arrayNode, []);
-            } else {
-              applyArrayKeyFilter(arrayNode, selected);
-            }
-          });
-        });
-      });
-      document.addEventListener("click", (e) => {
-        if (!e.target.closest(".key-filter-wrap")) {
-          outputEl.querySelectorAll(".key-filter-wrap.expanded").forEach((w) => w.classList.remove("expanded"));
+        if (toggle && children && !toggle.classList.contains("empty")) {
+          const isExp = toggle.classList.contains("expanded");
+          toggle.classList.toggle("expanded", !isExp);
+          toggle.classList.toggle("collapsed", isExp);
+          children.style.display = isExp ? "none" : "block";
         }
-      });
+      }
+
+      if (e.target.closest(".expand-all-array")) { setExpandRecursive(e.target.closest(".node"), true); return; }
+      if (e.target.closest(".collapse-all-array")) { setExpandRecursive(e.target.closest(".node"), false); return; }
+
+      if (e.target.closest(".key-filter-trigger")) {
+        const wrap = e.target.closest(".key-filter-wrap");
+        document.querySelectorAll(".key-filter-wrap.expanded").forEach(w => w !== wrap && w.classList.remove("expanded"));
+        wrap.classList.toggle("expanded");
+        return;
+      }
+
+      if (e.target.closest(".key-filter-pill")) {
+        const pill = e.target.closest(".key-filter-pill");
+        const wrap = pill.closest(".key-filter-wrap");
+        const arrayNode = wrap.closest(".node");
+        const isAll = pill.classList.contains("all-pill");
+
+        if (isAll) {
+          wrap.querySelectorAll(".key-filter-pill").forEach(p => p.classList.remove("active"));
+          pill.classList.add("active");
+        } else {
+          wrap.querySelector(".all-pill").classList.remove("active");
+          pill.classList.toggle("active");
+        }
+
+        const activePills = wrap.querySelectorAll(".key-filter-pill.active:not(.all-pill)");
+        const selected = Array.from(activePills).map(p => p.dataset.key);
+        const total = wrap.querySelectorAll(".key-filter-pill:not(.all-pill)").length;
+        wrap.querySelector(".key-filter-count").textContent = selected.length > 0 ? `${selected.length}/${total}` : total;
+        if (selected.length === 0) wrap.querySelector(".all-pill").classList.add("active");
+        applyArrayKeyFilter(arrayNode, selected);
+      }
     }
 
-    function parseAndRender() {
+    // Close filter menu when clicking outside (attach once)
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".key-filter-wrap")) document.querySelectorAll(".key-filter-wrap.expanded").forEach(w => w.classList.remove("expanded"));
+    });
+
+    function parseAndRender(skipAutoHide) {
       setError("");
-      const raw = inputEl.value.trim();
-      if (!raw) {
-        outputEl.innerHTML = "";
-        return;
-      }
-      let data;
       try {
-        data = JSON.parse(raw);
-      } catch (err) {
-        setError("Invalid JSON: " + err.message);
-        outputEl.innerHTML = "";
-        return;
-      }
-      const html = renderValue(data, null, null);
-      outputEl.innerHTML = html;
-      rootNodeEl = outputEl.querySelector(".node");
-      attachToggleListeners(outputEl);
+        const data = JSON.parse(inputEl.value.trim() || "null");
+        outputEl.innerHTML = renderValue(data, null, null);
+        rootNodeEl = outputEl.querySelector(".node");
+        // 成功 parse 後自動 hide 原本 JSON（一入網第一次唔 hide；轉語言觸發的 re-render 唔 hide）
+        if (!skipAutoHide && !isFirstParse) {
+          jsonHidden = true;
+          panelLeft.classList.add("hidden");
+          panelRight.classList.add("full-width");
+          updateHideJsonBtnText();
+        }
+        if (!skipAutoHide) isFirstParse = false;
+      } catch (err) { setError(err.message); outputEl.innerHTML = ""; }
     }
 
-    expandAllBtn.addEventListener("click", () => {
-      if (!rootNodeEl) return;
-      setExpandRecursive(rootNodeEl, true);
-    });
-    collapseAllBtn.addEventListener("click", () => {
-      if (!rootNodeEl) return;
-      setExpandRecursive(rootNodeEl, false);
-    });
-    collapseAllChildBtn.addEventListener("click", () => {
-      if (!rootNodeEl) return;
-      collapseAllChild(rootNodeEl);
-    });
-    hideJsonBtn.addEventListener("click", () => {
+    parseBtn.onclick = parseAndRender;
+    expandAllBtn.onclick = () => rootNodeEl && setExpandRecursive(rootNodeEl, true);
+    collapseAllBtn.onclick = () => rootNodeEl && setExpandRecursive(rootNodeEl, false);
+    collapseAllChildBtn.onclick = () => rootNodeEl && collapseAllChild(rootNodeEl);
+    hideJsonBtn.onclick = () => {
       jsonHidden = !jsonHidden;
       panelLeft.classList.toggle("hidden", jsonHidden);
       panelRight.classList.toggle("full-width", jsonHidden);
-      hideJsonBtn.textContent = jsonHidden ? "Show JSON" : "Hide JSON";
+      updateHideJsonBtnText();
+    };
+
+    settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
+    settingsBackdrop.onclick = (e) => { if (e.target === settingsBackdrop) settingsBackdrop.classList.remove("open"); };
+    document.querySelectorAll(".lang-opt").forEach(btn => {
+      btn.onclick = () => { applyLanguage(btn.dataset.lang); };
     });
-    parseBtn.addEventListener("click", parseAndRender);
+    document.querySelectorAll(".theme-opt").forEach(btn => {
+      btn.onclick = () => { applyTheme(btn.dataset.theme); };
+    });
+    document.querySelectorAll(".font-opt").forEach(btn => {
+      btn.onclick = () => { applyFontSize(btn.dataset.font); };
+    });
+
+    applyTheme(currentTheme);
+    applyFontSize(currentFont);
+    applyLanguage(currentLang);
+    outputEl.addEventListener("click", onTreeClick);
     parseAndRender();
-    inputEl.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) parseAndRender();
-    });
   </script>
 </body>
 </html>
