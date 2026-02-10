@@ -129,17 +129,95 @@
       color: #c0caf5;
     }
     .array-actions button:hover { background: #414868; }
-    .array-key-filter {
-      margin-left: 8px;
-      padding: 2px 8px;
-      font-size: 12px;
-      background: #1a1b26;
-      border: 1px solid #3b4261;
-      border-radius: 4px;
-      color: #c0caf5;
-      max-width: 140px;
+    .key-filter-wrap {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      margin-left: 10px;
     }
-    .array-key-filter option { background: #24283b; color: #c0caf5; }
+    .key-filter-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      font-size: 12px;
+      border: 1px solid #3b4261;
+      border-radius: 8px;
+      background: rgba(26, 27, 38, 0.9);
+      color: #a9b1d6;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .key-filter-trigger:hover {
+      background: #3b4261;
+      color: #c0caf5;
+    }
+    .key-filter-trigger .arrow {
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+    .key-filter-wrap.expanded .key-filter-trigger .arrow {
+      transform: rotate(180deg);
+    }
+    .key-filter-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 4px;
+      padding: 10px;
+      background: rgba(36, 40, 59, 0.98);
+      border: 1px solid #3b4261;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+      min-width: 140px;
+    }
+    .key-filter-wrap.expanded .key-filter-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .key-filter-label {
+      font-size: 11px;
+      color: #565f89;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .key-filter-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .key-filter-pill {
+      display: block;
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #3b4261;
+      color: #a9b1d6;
+      text-align: left;
+      transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+    .key-filter-pill:hover {
+      background: #414868;
+      color: #c0caf5;
+    }
+    .key-filter-pill.active {
+      background: #7aa2f7;
+      color: #1a1b26;
+      box-shadow: 0 0 0 1px rgba(122, 162, 247, 0.4);
+    }
+    .key-filter-pill.all-pill.active {
+      background: #9ece6a;
+      color: #1a1b26;
+    }
+    .key-filter-hidden {
+      display: none !important;
+    }
   </style>
 </head>
 <body>
@@ -149,6 +227,7 @@
     <button type="button" class="secondary" id="hideJsonBtn">Hide JSON</button>
     <button type="button" class="secondary" id="expandAllBtn">Expand All</button>
     <button type="button" class="secondary" id="collapseAllBtn">Collapse All</button>
+    <button type="button" class="secondary" id="collapseAllChildBtn">Collapse all child</button>
   </div>
   <div class="main">
     <div class="panel-left">
@@ -167,6 +246,7 @@
     const parseBtn = document.getElementById("parseBtn");
     const expandAllBtn = document.getElementById("expandAllBtn");
     const collapseAllBtn = document.getElementById("collapseAllBtn");
+    const collapseAllChildBtn = document.getElementById("collapseAllChildBtn");
     const hideJsonBtn = document.getElementById("hideJsonBtn");
     const panelLeft = document.querySelector(".panel-left");
     const panelRight = document.querySelector(".panel-right");
@@ -225,6 +305,39 @@
       children.querySelectorAll(".node").forEach((child) => setExpandRecursive(child, expand));
     }
 
+    function collectCollapsibleDescendants(nodeEl, list) {
+      const childrenEl = nodeEl.querySelector(".children");
+      const toggle = nodeEl.querySelector(".toggle:not(.empty)");
+      if (!childrenEl || !toggle) return;
+      childrenEl.querySelectorAll(":scope > .array-item-wrapper").forEach((w) => {
+        const n = w.querySelector(":scope > .node");
+        if (n) collectCollapsibleDescendants(n, list);
+      });
+      childrenEl.querySelectorAll(":scope > .node").forEach((n) => collectCollapsibleDescendants(n, list));
+      list.push(nodeEl);
+    }
+
+    function collapseAllChild(rootNodeEl) {
+      const list = [];
+      const childrenEl = rootNodeEl.querySelector(".children");
+      if (!childrenEl) return;
+      childrenEl.querySelectorAll(":scope > .array-item-wrapper").forEach((w) => {
+        const n = w.querySelector(":scope > .node");
+        if (n) collectCollapsibleDescendants(n, list);
+      });
+      childrenEl.querySelectorAll(":scope > .node").forEach((n) => collectCollapsibleDescendants(n, list));
+      list.reverse();
+      list.forEach((node) => {
+        const t = node.querySelector(".toggle");
+        const c = node.querySelector(".children");
+        if (t && !t.classList.contains("empty") && c) {
+          t.classList.add("collapsed");
+          t.classList.remove("expanded");
+          c.style.display = "none";
+        }
+      });
+    }
+
     function collectObjectKeysFromArray(arr) {
       const set = new Set();
       arr.forEach((item) => {
@@ -235,24 +348,59 @@
       return Array.from(set).sort();
     }
 
-    function applyArrayKeyFilter(arrayNodeEl, keyFilter) {
-      const children = arrayNodeEl.querySelector(".children");
-      if (!children) return;
-      const key = (keyFilter || "").trim();
-      children.querySelectorAll(".array-item-wrapper").forEach((wrapper) => {
-        const keysStr = wrapper.getAttribute("data-object-keys") || "";
-        const keys = keysStr ? keysStr.split(",") : [];
-        const hasKey = key === "" || keys.includes(key);
-        wrapper.style.display = hasKey ? "" : "none";
-        const objNode = wrapper.querySelector(".node[data-is-object='true']");
-        if (!objNode || !hasKey) return;
-        setExpandRecursive(objNode, true);
-        const objChildren = objNode.querySelector(".children");
-        if (!objChildren) return;
-        objChildren.querySelectorAll(".node[data-key]").forEach((row) => {
-          const rowKey = row.getAttribute("data-key");
-          row.style.display = (key === "" || rowKey === key) ? "" : "none";
-        });
+    function applyArrayKeyFilter(arrayNodeEl, selectedKeys) {
+      const childrenEl = arrayNodeEl.querySelector(".children");
+      if (!childrenEl) return;
+      
+      const keySet = selectedKeys.length ? new Set(selectedKeys) : null;
+      const isAll = keySet === null;
+      
+      // 搵出 Array 入面所有嘅直接子項 (wrapper)
+      const wrappers = childrenEl.querySelectorAll(":scope > .array-item-wrapper");
+      
+      wrappers.forEach((wrapper) => {
+        const objNode = wrapper.querySelector(":scope > .node");
+        if (!objNode) return;
+
+        // 如果係 Object，我哋要檢查佢入面邊啲 key 應該 show
+        if (objNode.getAttribute("data-is-object") === "true") {
+          const objChildren = objNode.querySelector(".children");
+          if (!objChildren) return;
+
+          let hasVisibleKey = false;
+          
+          // 遍歷 Object 嘅所有直接子項 (即係啲 Key)
+          Array.from(objChildren.children).forEach((row) => {
+            if (!row.classList.contains("node")) return;
+            
+            const rowKey = row.getAttribute("data-key");
+            const shouldShowRow = isAll || keySet.has(rowKey);
+            
+            if (shouldShowRow) {
+              row.classList.remove("key-filter-hidden");
+              hasVisibleKey = true;
+            } else {
+              row.classList.add("key-filter-hidden");
+            }
+          });
+
+          // 【關鍵點】如果呢個 Object 一個選中嘅 Key 都冇，就隱藏成個 Object Wrapper
+          if (!isAll && !hasVisibleKey) {
+            wrapper.classList.add("key-filter-hidden");
+          } else {
+            wrapper.classList.remove("key-filter-hidden");
+            // 既然 Filter 緊，通常想直接見到內容，所以我自動 expand 佢
+            if (!isAll) setExpandRecursive(objNode, true);
+          }
+        } else {
+          // 如果 Array 入面唔係 Object (例如係 String/Number)，
+          // 既然依家係按 Key Filter，非 Object 嘅項喺非 "All" 模式下通常應該隱藏
+          if (isAll) {
+            wrapper.classList.remove("key-filter-hidden");
+          } else {
+            wrapper.classList.add("key-filter-hidden");
+          }
+        }
       });
     }
 
@@ -277,7 +425,7 @@
       if (Array.isArray(value)) {
         const len = value.length;
         const allKeys = collectObjectKeysFromArray(value);
-        const keyFilterHtml = allKeys.length ? `<select class="array-key-filter" title="Show only objects with this key"><option value="">(all)</option>${allKeys.map((k) => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join("")}</select>` : "";
+        const keyFilterHtml = allKeys.length ? `<span class="key-filter-wrap"><button type="button" class="key-filter-trigger" title="Filter by key">Filter keys <span class="arrow">▼</span></button><span class="key-filter-menu"><span class="key-filter-label">Keys</span><span class="key-filter-pills"><button type="button" class="key-filter-pill all-pill active" data-key="" title="Show all">All</button>${allKeys.map((k) => `<button type="button" class="key-filter-pill" data-key="${escapeHtml(k)}" title="Toggle ${escapeHtml(k)}">${escapeHtml(k)}</button>`).join("")}</span></span></span>` : "";
         const childNodes = value.map((item, i) => {
           const keysAttr = (item !== null && typeof item === "object" && !Array.isArray(item)) ? ` data-object-keys="${escapeHtml(Object.keys(item).join(","))}"` : "";
           return `<div class="array-item-wrapper"${keysAttr}>${renderValue(item, null, `[${i}]`)}</div>`;
@@ -344,11 +492,41 @@
           if (node) expandOrCollapseAllForArray(node, false);
         });
       });
-      containerEl.querySelectorAll(".array-key-filter").forEach((select) => {
-        select.addEventListener("change", (e) => {
-          const arrayNode = e.target.closest(".node[data-is-array='true']");
-          if (arrayNode) applyArrayKeyFilter(arrayNode, e.target.value);
+      containerEl.querySelectorAll(".key-filter-wrap").forEach((wrap) => {
+        const arrayNode = wrap.closest(".node[data-is-array='true']");
+        if (!arrayNode) return;
+        const trigger = wrap.querySelector(".key-filter-trigger");
+        const menu = wrap.querySelector(".key-filter-menu");
+        trigger.addEventListener("click", (e) => {
+          e.stopPropagation();
+          wrap.classList.toggle("expanded");
         });
+        wrap.querySelectorAll(".key-filter-pill").forEach((pill) => {
+          pill.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const key = pill.getAttribute("data-key");
+            if (key === "") {
+              wrap.querySelectorAll(".key-filter-pill").forEach((p) => p.classList.remove("active"));
+              pill.classList.add("active");
+              applyArrayKeyFilter(arrayNode, []);
+              return;
+            }
+            pill.classList.toggle("active");
+            wrap.querySelector(".all-pill").classList.remove("active");
+            const selected = Array.from(wrap.querySelectorAll(".key-filter-pill.active:not(.all-pill)")).map((p) => p.getAttribute("data-key"));
+            if (selected.length === 0) {
+              wrap.querySelector(".all-pill").classList.add("active");
+              applyArrayKeyFilter(arrayNode, []);
+            } else {
+              applyArrayKeyFilter(arrayNode, selected);
+            }
+          });
+        });
+      });
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".key-filter-wrap")) {
+          outputEl.querySelectorAll(".key-filter-wrap.expanded").forEach((w) => w.classList.remove("expanded"));
+        }
       });
     }
 
@@ -380,6 +558,10 @@
     collapseAllBtn.addEventListener("click", () => {
       if (!rootNodeEl) return;
       setExpandRecursive(rootNodeEl, false);
+    });
+    collapseAllChildBtn.addEventListener("click", () => {
+      if (!rootNodeEl) return;
+      collapseAllChild(rootNodeEl);
     });
     hideJsonBtn.addEventListener("click", () => {
       jsonHidden = !jsonHidden;
