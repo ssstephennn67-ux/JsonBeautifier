@@ -7,388 +7,222 @@ const collapseAllChildBtn = document.getElementById("collapseAllChildBtn");
 const hideJsonBtn = document.getElementById("hideJsonBtn");
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsBackdrop = document.getElementById("settingsBackdrop");
+const settingsDoneBtn = document.getElementById("settingsDoneBtn");
+const arrayFilterBackdrop = document.getElementById("arrayFilterBackdrop");
+const arrayFilterKeysEl = document.getElementById("arrayFilterKeys");
+const arrayFilterConfirmBtn = document.getElementById("arrayFilterConfirm");
+const arrayFilterCancelBtn = document.getElementById("arrayFilterCancel");
 const panelLeft = document.getElementById("panelLeft");
 const panelRight = document.getElementById("panelRight");
 
 let rootNodeEl = null;
 let jsonHidden = false;
 let isFirstParse = true;
-
-// 記憶 Filter 狀態
-const filterRegistry = new WeakMap();
+let activeArrayNode = null;
 
 // Preferences
 let currentTheme = localStorage.getItem('json-theme') || 'dark';
 let currentFont = localStorage.getItem('json-font') || 'medium';
 let currentLang = localStorage.getItem('json-lang') || 'zh';
 
-function setActiveSettingButtons(selector, dataKey, activeValue) {
-  const buttons = document.querySelectorAll(selector);
-  buttons.forEach((btn) => {
-    const isActive = btn.dataset[dataKey] === activeValue;
-    btn.classList.toggle("is-active", isActive);
-    btn.style.pointerEvents = isActive ? "none" : "auto";
-  });
-}
-
-const translations = {
-  zh: { title: "JSON Beautifier", parse: "解析並格式化", expandAll: "全部展開", collapseAll: "全部收合", collapseChildren: "收合子節點", hideInput: "隱藏 JSON 輸入", showInput: "顯示 JSON 輸入", settings: "偏好設定", prefTitle: "偏好設定", theme: "主題", font: "字體大小", lang: "語言", done: "完成", placeholder: "在此貼上 JSON...", errorTitle: "錯誤： " },
-  en: { title: "JSON Beautifier", parse: "Parse JSON", expandAll: "Expand All", collapseAll: "Collapse All", collapseChildren: "Collapse Children", hideInput: "Hide Input", showInput: "Show Input", settings: "Settings", prefTitle: "Preferences", theme: "Theme", font: "Font Size", lang: "Language", done: "Done", placeholder: "Paste JSON here...", errorTitle: "Error: " }
-};
-
-function applyLanguage(lang) {
-  currentLang = lang;
-  localStorage.setItem('json-lang', lang);
-  const t = translations[lang];
-  document.querySelector("h1").textContent = t.title;
-  parseBtn.textContent = t.parse;
-  expandAllBtn.textContent = t.expandAll;
-  collapseAllBtn.textContent = t.collapseAll;
-  collapseAllChildBtn.textContent = t.collapseChildren;
-  hideJsonBtn.textContent = jsonHidden ? t.showInput : t.hideInput;
-  settingsBtn.textContent = t.settings;
-  document.getElementById("settingsTitle").textContent = t.prefTitle;
-  document.querySelectorAll(".btn-done").forEach(btn => btn.textContent = t.done);
-  document.getElementById("jsonInput").placeholder = t.placeholder;
-  setActiveSettingButtons(".lang-opt", "lang", lang);
-}
-
 function applyTheme(theme) {
   document.body.className = document.body.className.replace(/theme-\w+/, `theme-${theme}`);
   currentTheme = theme;
   localStorage.setItem('json-theme', theme);
-  setActiveSettingButtons(".theme-opt", "theme", theme);
 }
 
 function applyFontSize(size) {
   document.body.className = document.body.className.replace(/font-\w+/, `font-${size}`);
   currentFont = size;
   localStorage.setItem('json-font', size);
-  setActiveSettingButtons(".font-opt", "font", size);
 }
 
-function setError(msg) {
-  const errorEl = document.getElementById("error");
-  const prefix = translations[currentLang]?.errorTitle || "";
-  errorEl.textContent = msg ? prefix + msg : "";
-}
+// 渲染節點
+function createNode(key, value, isRoot = false) {
+  const container = document.createElement("div");
+  container.className = "node";
 
-// --- Filter 邏輯 ---
-function openFilterModal(data, bodyContainer) {
-  const backdrop = document.getElementById("filterBackdrop");
-  const optionsContainer = document.getElementById("filterOptions");
-  const confirmBtn = document.getElementById("confirmFilterBtn");
-  const toggleAllBtn = document.getElementById("toggleAllFilterBtn");
+  const row = document.createElement("div");
+  row.className = "node-row";
 
-  optionsContainer.innerHTML = "";
-  const allKeys = new Set();
-  data.forEach(item => {
-    if (item && typeof item === 'object' && !Array.isArray(item)) {
-      Object.keys(item).forEach(k => allKeys.add(k));
-    }
-  });
+  const isObject = typeof value === "object" && value !== null;
+  const isArray = Array.isArray(value);
 
-  const savedSelection = filterRegistry.get(bodyContainer) || ["all", ...allKeys];
-
-  const createCheckbox = (val, label) => {
-    const isChecked = savedSelection.includes(val);
-    const lbl = document.createElement("label");
-    lbl.className = "filter-item";
-    lbl.innerHTML = `<input type="checkbox" value="${val}" ${isChecked ? 'checked' : ''}> <span>${label}</span>`;
-    optionsContainer.appendChild(lbl);
-  };
-
-  createCheckbox("all", "All (全部顯示)");
-  allKeys.forEach(k => createCheckbox(k, k));
-
-  toggleAllBtn.onclick = () => {
-    const cbs = optionsContainer.querySelectorAll('input[type="checkbox"]');
-    const allChecked = Array.from(cbs).every(cb => cb.checked);
-    cbs.forEach(cb => cb.checked = !allChecked);
-  };
-
-  backdrop.classList.add("open");
-  document.body.classList.add("modal-open");
-    confirmBtn.onclick = () => {
-    const selected = Array.from(optionsContainer.querySelectorAll("input:checked")).map(i => i.value);
-    filterRegistry.set(bodyContainer, selected);
-    applyFilterToUI(bodyContainer, selected);
-
-    // 關閉彈窗時：解除捲動鎖定
-    backdrop.classList.remove("open");
-    document.body.classList.remove("modal-open");
-  };
-
-  backdrop.onclick = (e) => {
-      if (e.target === backdrop) {
-        backdrop.classList.remove("open");
-        document.body.classList.remove("modal-open");
-      }
+  // 展開箭頭
+  if (isObject) {
+    const toggle = document.createElement("span");
+    toggle.className = "toggle";
+    toggle.textContent = "▼";
+    toggle.onclick = (e) => {
+      e.stopPropagation();
+      const isCollapsed = container.classList.toggle("collapsed");
+      toggle.textContent = isCollapsed ? "▶" : "▼";
     };
-}
+    row.appendChild(toggle);
+  } else {
+    const spacer = document.createElement("span");
+    spacer.style.width = "18px";
+    spacer.style.display = "inline-block";
+    row.appendChild(spacer);
+  }
 
-function applyFilterToUI(bodyContainer, selectedKeys) {
-  const isAll = selectedKeys.includes("all");
+  // Key
+  if (key !== null) {
+    const keyEl = document.createElement("span");
+    keyEl.className = typeof key === "number" ? "key-index" : "key";
+    keyEl.textContent = typeof key === "number" ? `[${key}]` : `"${key}"`;
+    row.appendChild(keyEl);
 
-  Array.from(bodyContainer.children).forEach(itemNode => {
-    const itemBody = itemNode.querySelector(":scope > .node-body");
-    const itemHead = itemNode.querySelector(":scope > .node-head");
-
-    if (itemBody) {
-      let visibleCount = 0;
-      Array.from(itemBody.children).forEach(pair => {
-        const keyName = pair.getAttribute("data-key");
-        const show = isAll || selectedKeys.includes(keyName);
-        pair.style.display = show ? "block" : "none";
-        if (show) visibleCount++;
-      });
-
-      // 如果 Filter 後沒東西，顯示 { ... }
-      const ellipsis = itemHead.querySelector(".ellipsis");
-      const closeSmall = itemHead.querySelector(".bracket-close-small");
-      const toggle = itemHead.querySelector(".toggle");
-
-      if (visibleCount === 0) {
-        if (ellipsis) ellipsis.style.display = "inline";
-        if (closeSmall) closeSmall.style.display = "inline";
-        itemBody.style.display = "none";
-        itemNode.querySelector(":scope > .node-footer").style.display = "none";
-        if (toggle) {
-            toggle.classList.remove("expanded");
-            toggle.classList.add("collapsed");
-        }
-      } else {
-        // 恢復原本狀態（預設展開）
-        if (ellipsis) ellipsis.style.display = "none";
-        if (closeSmall) closeSmall.style.display = "none";
-        itemBody.style.display = "block";
-        itemNode.querySelector(":scope > .node-footer").style.display = "block";
-        if (toggle) {
-            toggle.classList.add("expanded");
-            toggle.classList.remove("collapsed");
-        }
-      }
-    }
-  });
-}
-
-// --- 建立節點 ---
-function createNode(key, value, isLast = true, keyIndex = null) {
-  const node = document.createElement("div");
-  node.className = "node";
-  if (key !== null) node.setAttribute("data-key", key);
-
-  const head = document.createElement("div");
-  head.className = "node-head";
-
-  // 1. 先放 Index 數字
-  if (keyIndex !== null) {
-    const idxSpan = document.createElement("span");
-    idxSpan.className = "key-index";
-    idxSpan.textContent = keyIndex;
-    head.appendChild(idxSpan);
     const colon = document.createElement("span");
     colon.textContent = ": ";
-    head.appendChild(colon);
+    row.appendChild(colon);
   }
 
-  const isContainer = value !== null && typeof value === "object";
+  const body = document.createElement("div");
+  body.className = "node-body";
 
-  if (isContainer) {
-    const isArray = Array.isArray(value);
-    const openBr = isArray ? "[" : "{";
-    const closeBr = isArray ? "]" : "}";
-
-    // 2. 接著放箭頭 (toggle)
-    const toggle = document.createElement("span");
-    toggle.className = "toggle expanded";
-    head.appendChild(toggle);
-
-    // 3. 如果是 Object Key (非 Array Index)，放在箭頭後
-    if (key !== null && keyIndex === null) {
-      const keySpan = document.createElement("span");
-      keySpan.className = "key";
-      keySpan.textContent = `"${key}"`;
-      head.appendChild(keySpan);
-      const colon = document.createElement("span");
-      colon.textContent = ": ";
-      head.appendChild(colon);
-    }
-
-    // 4. 開啟括號
+  if (isObject) {
     const bracketOpen = document.createElement("span");
-    bracketOpen.className = "bracket";
-    bracketOpen.textContent = openBr;
-    head.appendChild(bracketOpen);
+    bracketOpen.textContent = isArray ? "[" : "{";
+    row.appendChild(bracketOpen);
 
-    // 收合或 Filter 完沒東西時顯示的內容
-    const ellipsis = document.createElement("span");
-    ellipsis.className = "ellipsis";
-    ellipsis.textContent = " ... ";
-    ellipsis.style.display = "none";
-    head.appendChild(ellipsis);
+    // Filter 及 動作按鈕 (如果是物件陣列)
+    if (isArray && value.length > 0 && typeof value[0] === 'object') {
+      const btnGroup = document.createElement("div");
+      btnGroup.style.display = "inline-flex";
+      btnGroup.style.gap = "4px";
+      btnGroup.style.marginLeft = "10px";
 
-    const bracketCloseSmall = document.createElement("span");
-    bracketCloseSmall.className = "bracket bracket-close-small";
-    bracketCloseSmall.textContent = closeBr + (isLast ? "" : ",");
-    bracketCloseSmall.style.display = "none";
-    head.appendChild(bracketCloseSmall);
+      const filterBtn = document.createElement("button");
+      filterBtn.className = "secondary tiny-btn";
+      filterBtn.textContent = "Filter";
+      filterBtn.onclick = (e) => {
+        e.stopPropagation();
+        openArrayFilter(value, body, key);
+      };
 
-    // Body 內容
-    const body = document.createElement("div");
-    body.className = "node-body";
-    if (isArray) {
-      const controls = document.createElement("span");
-      controls.className = "array-controls";
-      const fBtn = document.createElement("button"); fBtn.className = "array-btn"; fBtn.textContent = "Filter";
-      fBtn.onclick = (e) => { e.stopPropagation(); openFilterModal(value, body); };
-      const eBtn = document.createElement("button"); eBtn.className = "array-btn"; eBtn.textContent = "+";
-      eBtn.onclick = (e) => { e.stopPropagation(); setExpandRecursive(node, true); };
-      const cBtn = document.createElement("button"); cBtn.className = "array-btn"; cBtn.textContent = "-";
-      cBtn.onclick = (e) => { e.stopPropagation(); setExpandRecursive(node, false); };
-      controls.append(fBtn, eBtn, cBtn);
-      head.appendChild(controls);
+      const resetBtn = document.createElement("button");
+      resetBtn.className = "secondary tiny-btn";
+      resetBtn.textContent = "Reset";
+      resetBtn.onclick = (e) => {
+        e.stopPropagation();
+        renderArrayItems(value, body);
+      };
 
-      value.forEach((v, i) => body.appendChild(createNode(null, v, i === value.length - 1, i)));
-    } else {
-      const keys = Object.keys(value);
-      keys.forEach((k, i) => body.appendChild(createNode(k, value[k], i === keys.length - 1)));
+      btnGroup.appendChild(filterBtn);
+      btnGroup.appendChild(resetBtn);
+      row.appendChild(btnGroup);
     }
 
-    const footer = document.createElement("div");
-    footer.className = "node-footer";
-    const bracketCloseLarge = document.createElement("span");
-    bracketCloseLarge.className = "bracket";
-    bracketCloseLarge.textContent = closeBr + (isLast ? "" : ",");
-    footer.appendChild(bracketCloseLarge);
+    renderArrayItems(value, body);
+    container.appendChild(row);
+    container.appendChild(body);
 
-    head.onclick = (e) => {
-      e.stopPropagation();
-      const willExpand = !toggle.classList.contains("expanded");
-      setNodeExpand(node, willExpand);
-    };
-
-    node.appendChild(head);
-    node.appendChild(body);
-    node.appendChild(footer);
+    const bracketClose = document.createElement("div");
+    bracketClose.className = "bracket-close";
+    bracketClose.textContent = isArray ? "]" : "}";
+    container.appendChild(bracketClose);
   } else {
-    // 非容器 (String, Number, etc.)
-    if (key !== null && keyIndex === null) {
-      const keySpan = document.createElement("span");
-      keySpan.className = "key";
-      keySpan.textContent = `"${key}"`;
-      head.appendChild(keySpan);
-      const colon = document.createElement("span");
-      colon.textContent = ": ";
-      head.appendChild(colon);
+    // Value
+    const valEl = document.createElement("span");
+    valEl.className = typeof value;
+    if (typeof value === "string") valEl.textContent = `"${value}"`;
+    else valEl.textContent = String(value);
+    row.appendChild(valEl);
+    container.appendChild(row);
+  }
+
+  return container;
+}
+
+function renderArrayItems(data, container) {
+  container.innerHTML = "";
+  const isArray = Array.isArray(data);
+  if (isArray) {
+    data.forEach((v, i) => container.appendChild(createNode(i, v)));
+  } else {
+    Object.entries(data).forEach(([k, v]) => container.appendChild(createNode(k, v)));
+  }
+}
+
+// Filter 邏輯
+function openArrayFilter(data, bodyContainer, parentKey) {
+  activeArrayNode = { data, bodyContainer, parentKey };
+  arrayFilterKeysEl.innerHTML = "";
+
+  const keys = new Set();
+  data.forEach(item => {
+    if (item && typeof item === 'object') {
+      Object.keys(item).forEach(k => keys.add(k));
     }
-    const valSpan = document.createElement("span");
-    valSpan.className = typeof value;
-    if (value === null) valSpan.className = "null";
-    valSpan.textContent = typeof value === "string" ? `"${value}"` : String(value);
-    head.appendChild(valSpan);
-    if (!isLast) {
-      const comma = document.createElement("span");
-      comma.className = "comma";
-      comma.textContent = ",";
-      head.appendChild(comma);
+  });
+
+  // 全選控制項
+  const controlDiv = document.createElement("div");
+  controlDiv.style.gridColumn = "1 / -1";
+  controlDiv.style.marginBottom = "10px";
+  controlDiv.innerHTML = `
+    <button class="secondary tiny-btn" onclick="toggleAllFilters(true)">Select All</button>
+    <button class="secondary tiny-btn" onclick="toggleAllFilters(false)">Clear All</button>
+  `;
+  arrayFilterKeysEl.appendChild(controlDiv);
+
+  keys.forEach(k => {
+    const div = document.createElement("div");
+    div.className = "filter-checkbox-item";
+    div.innerHTML = `<label><input type="checkbox" checked value="${k}"> ${k}</label>`;
+    arrayFilterKeysEl.appendChild(div);
+  });
+
+  arrayFilterBackdrop.classList.add("open");
+}
+
+window.toggleAllFilters = (checked) => {
+  const cbs = arrayFilterKeysEl.querySelectorAll('input[type="checkbox"]');
+  cbs.forEach(cb => cb.checked = checked);
+};
+
+arrayFilterConfirmBtn.onclick = () => {
+  if (!activeArrayNode) return;
+  const { data, bodyContainer } = activeArrayNode;
+  const selectedKeys = Array.from(arrayFilterKeysEl.querySelectorAll("input:checked")).map(i => i.value);
+
+  bodyContainer.innerHTML = "";
+  data.forEach((item, index) => {
+    if (typeof item === 'object' && item !== null) {
+      const filtered = {};
+      selectedKeys.forEach(k => { if (k in item) filtered[k] = item[k]; });
+      bodyContainer.appendChild(createNode(index, filtered));
+    } else {
+      bodyContainer.appendChild(createNode(index, item));
     }
-    node.appendChild(head);
-  }
-  return node;
-}
+  });
+  arrayFilterBackdrop.classList.remove("open");
+};
 
-function setNodeExpand(node, expand) {
-  const toggle = node.querySelector(":scope > .node-head > .toggle");
-  const body = node.querySelector(":scope > .node-body");
-  const footer = node.querySelector(":scope > .node-footer");
-  const ellipsis = node.querySelector(":scope > .node-head > .ellipsis");
-  const closeSmall = node.querySelector(":scope > .node-head > .bracket-close-small");
+arrayFilterCancelBtn.onclick = () => arrayFilterBackdrop.classList.remove("open");
 
-  if (!toggle) return;
-  toggle.classList.toggle("expanded", expand);
-  toggle.classList.toggle("collapsed", !expand);
-  body.style.display = expand ? "block" : "none";
-  footer.style.display = expand ? "block" : "none";
-  if (ellipsis) ellipsis.style.display = expand ? "none" : "inline";
-  if (closeSmall) closeSmall.style.display = expand ? "none" : "inline";
-}
-
-function setExpandRecursive(node, expand) {
-  setNodeExpand(node, expand);
-  const body = node.querySelector(":scope > .node-body");
-  if (body) {
-    Array.from(body.children).forEach(child => setExpandRecursive(child, expand));
-  }
-}
-
-function collapseAllChild(node) {
-  const body = node.querySelector(":scope > .node-body");
-  if (body) {
-    Array.from(body.children).forEach(child => setExpandRecursive(child, false));
-  }
-}
-
-function parseAndRender(skipAutoHide = false) {
-  const raw = inputEl.value.trim();
-  if (!raw) return;
+// 其他 UI 控制
+function parseAndRender() {
+  const val = inputEl.value.trim();
+  if (!val) return;
   try {
-    const data = JSON.parse(raw);
-    setError("");
+    const data = JSON.parse(val);
     outputEl.innerHTML = "";
     rootNodeEl = createNode(null, data, true);
     outputEl.appendChild(rootNodeEl);
-    if (isFirstParse && !skipAutoHide) {
-      jsonHidden = true;
+    if (isFirstParse) {
       panelLeft.classList.add("hidden");
       panelRight.classList.add("full-width");
-      const t = translations[currentLang];
-      hideJsonBtn.textContent = t.showInput;
+      isFirstParse = false;
     }
-    if (!skipAutoHide) isFirstParse = false;
-  } catch (err) {
-    setError(err.message);
-    outputEl.innerHTML = "";
+  } catch (e) {
+    document.getElementById("error").textContent = e.message;
   }
 }
 
-// Global Listeners
-parseBtn.onclick = () => parseAndRender();
-expandAllBtn.onclick = () => rootNodeEl && setExpandRecursive(rootNodeEl, true);
-collapseAllBtn.onclick = () => rootNodeEl && setExpandRecursive(rootNodeEl, false);
-collapseAllChildBtn.onclick = () => rootNodeEl && collapseAllChild(rootNodeEl);
-hideJsonBtn.onclick = () => {
-  jsonHidden = !jsonHidden;
-  panelLeft.classList.toggle("hidden", jsonHidden);
-  panelRight.classList.toggle("full-width", jsonHidden);
-  hideJsonBtn.textContent = jsonHidden ? translations[currentLang].showInput : translations[currentLang].hideInput;
-};
-const settingsDoneBtn = document.getElementById("settingsDoneBtn");
-settingsBtn.onclick = () => {
-    settingsBackdrop.classList.add("open");
-    document.body.classList.add("modal-open");
-};
-document.querySelectorAll(".settings-backdrop").forEach(bg => {
-  bg.onclick = (e) => { if (e.target === bg) bg.classList.remove("open"); };
-});
-document.querySelectorAll(".theme-opt").forEach(btn => btn.onclick = () => applyTheme(btn.dataset.theme));
-document.querySelectorAll(".font-opt").forEach(btn => btn.onclick = () => applyFontSize(btn.dataset.font));
-document.querySelectorAll(".lang-opt").forEach(btn => btn.onclick = () => applyLanguage(btn.dataset.lang));
-
-function closeSettings() {
-    settingsBackdrop.classList.remove("open");
-    document.body.classList.remove("modal-open");
-}
-
-// 點擊「完成」
-settingsDoneBtn.onclick = closeSettings;
-
-// 點擊黑色背景
-settingsBackdrop.onclick = (e) => {
-    if (e.target === settingsBackdrop) closeSettings();
-};
-
-// Init
-applyTheme(currentTheme);
-applyFontSize(currentFont);
-applyLanguage(currentLang);
+parseBtn.onclick = parseAndRender;
+settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
+settingsDoneBtn.onclick = () => settingsBackdrop.classList.remove("open");
+document.querySelectorAll(".theme-opt").forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
+document.querySelectorAll(".font-opt").forEach(b => b.onclick = () => applyFontSize(b.dataset.font));
