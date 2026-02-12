@@ -59,7 +59,8 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 /* JSON Tree */
 textarea { flex: 1; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: inherit; font-size: var(--font-size); resize: none; }
 .tree { flex: 1; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 16px; overflow: auto; font-size: var(--font-size); line-height: 1.6; }
-.error { color: var(--error); margin-top: 8px; }
+.error { color: var(--error); margin-top: 2px; min-height: 0.9em; font-size: 0.8em; }
+.error-placeholder { margin-top: 2px; min-height: 0.9em; flex-shrink: 0; }
 
 /* JSON 節點 */
 .node-item { display: block; position: relative; }

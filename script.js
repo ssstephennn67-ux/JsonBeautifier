@@ -14,10 +14,10 @@ const arrayFilterConfirmBtn = document.getElementById("arrayFilterConfirm");
 const arrayFilterCancelBtn = document.getElementById("arrayFilterCancel");
 const panelLeft = document.getElementById("panelLeft");
 const panelRight = document.getElementById("panelRight");
+const errorEl = document.getElementById("error");
 
 let rootNodeEl = null;
 let jsonHidden = false;
-let isFirstParse = true;
 let activeArrayNode = null;
 
 // Preferences
@@ -249,14 +249,18 @@ function parseAndRender() {
     outputEl.innerHTML = "";
     rootNodeEl = createNode(null, data, true);
     outputEl.appendChild(rootNodeEl);
-    if (isFirstParse) {
-      panelLeft.classList.add("hidden");
-      panelRight.classList.add("full-width");
-      isFirstParse = false;
-    }
+    errorEl.textContent = "";
+    jsonHidden = true;
+    applyJsonPanelState();
   } catch (e) {
-    document.getElementById("error").textContent = e.message;
+    errorEl.textContent = e.message;
   }
+}
+
+function applyJsonPanelState() {
+  panelLeft.classList.toggle("hidden", jsonHidden);
+  panelRight.classList.toggle("full-width", jsonHidden);
+  hideJsonBtn.textContent = jsonHidden ? "顯示 JSON 輸入" : "隱藏 JSON 輸入";
 }
 
 parseBtn.onclick = parseAndRender;
@@ -265,9 +269,7 @@ collapseAllBtn.onclick = () => setAllExpanded(false);
 collapseAllChildBtn.onclick = () => collapseAllChildrenOnly();
 hideJsonBtn.onclick = () => {
   jsonHidden = !jsonHidden;
-  panelLeft.classList.toggle("hidden", jsonHidden);
-  panelRight.classList.toggle("full-width", jsonHidden);
-  hideJsonBtn.textContent = jsonHidden ? "顯示 JSON 輸入" : "隱藏 JSON 輸入";
+  applyJsonPanelState();
 };
 settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
 settingsDoneBtn.onclick = () => settingsBackdrop.classList.remove("open");
