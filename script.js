@@ -198,8 +198,9 @@ function createNode(key, value, isRoot = false) {
     summaryBracketClose.textContent = isArray ? "]" : "}";
     row.appendChild(summaryBracketClose);
 
-    // Filter 及 動作按鈕 (如果是物件陣列)
-    if (isArray && value.length > 0 && typeof value[0] === 'object') {
+    // Filter 及 動作按鈕 (陣列內至少有一個 object 就可 filter)
+    const hasObjectItems = isArray && value.length > 0 && value.some(item => item != null && typeof item === 'object' && !Array.isArray(item));
+    if (hasObjectItems) {
       const btnGroup = document.createElement("div");
       btnGroup.style.display = "inline-flex";
       btnGroup.style.gap = "4px";
@@ -263,7 +264,7 @@ function getFilterStorageKey(parentKey, keysArray) {
   return `json-filter-${keyPart}-${keysPart}`;
 }
 
-// Filter 邏輯
+// Filter 邏輯：第一次入去（無 saved state）preselect 全部；之後用 saved state
 function openArrayFilter(data, bodyContainer, parentKey) {
   const keys = new Set();
   data.forEach(item => {
@@ -273,7 +274,8 @@ function openArrayFilter(data, bodyContainer, parentKey) {
   });
   const keysArray = Array.from(keys);
   const storageKey = getFilterStorageKey(parentKey, [...keysArray]);
-  const savedKeys = JSON.parse(localStorage.getItem(storageKey) || "null");
+  const raw = localStorage.getItem(storageKey);
+  const savedKeys = raw ? JSON.parse(raw) : null;
   activeArrayNode = { data, bodyContainer, parentKey, storageKey };
   arrayFilterKeysEl.innerHTML = "";
 
