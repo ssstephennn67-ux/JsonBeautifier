@@ -37,7 +37,12 @@ const strings = {
     placeholder: "在此貼上 JSON 程式碼...",
     themeLabel: "主題",
     fontLabel: "字體大小",
+    fontSmall: "小",
+    fontMedium: "中",
+    fontLarge: "大",
     langLabel: "介面語言",
+    langZh: "繁體中文",
+    langEn: "English",
     close: "關閉",
     filterTitle: "過濾欄位 (Array Filter)",
     filterCancel: "取消",
@@ -54,7 +59,12 @@ const strings = {
     placeholder: "Paste JSON here...",
     themeLabel: "Theme",
     fontLabel: "Font Size",
+    fontSmall: "Small",
+    fontMedium: "Medium",
+    fontLarge: "Large",
     langLabel: "Language",
+    langZh: "繁體中文",
+    langEn: "English",
     close: "Close",
     filterTitle: "Filter Keys (Array Filter)",
     filterCancel: "Cancel",
@@ -104,11 +114,17 @@ function updateUIText() {
   collapseAllChildBtn.textContent = t.collapseChild;
   settingsBtn.textContent = t.settings;
   inputEl.placeholder = t.placeholder;
-  document.getElementById("settingsTitle").textContent = t.settings;
+  const settingsTitle = document.getElementById("settingsTitle");
+  if (settingsTitle) settingsTitle.textContent = t.settings;
   settingsDoneBtn.textContent = t.close;
   document.querySelector(".settings-row:nth-child(1) .settings-label").textContent = t.themeLabel;
   document.querySelector(".settings-row:nth-child(2) .settings-label").textContent = t.fontLabel;
   document.querySelector(".settings-row:nth-child(3) .settings-label").textContent = t.langLabel;
+  document.querySelector('[data-font="small"]').textContent = t.fontSmall;
+  document.querySelector('[data-font="medium"]').textContent = t.fontMedium;
+  document.querySelector('[data-font="large"]').textContent = t.fontLarge;
+  document.querySelector('[data-lang="zh"]').textContent = t.langZh;
+  document.querySelector('[data-lang="en"]').textContent = t.langEn;
   arrayFilterBackdrop.querySelector("h2").textContent = t.filterTitle;
   arrayFilterCancelBtn.textContent = t.filterCancel;
   arrayFilterConfirmBtn.textContent = t.filterConfirm;
@@ -241,17 +257,25 @@ function renderArrayItems(data, container) {
   }
 }
 
+function getFilterStorageKey(parentKey, keysArray) {
+  const keyPart = String(parentKey ?? "root");
+  const keysPart = keysArray.sort().join(",");
+  return `json-filter-${keyPart}-${keysPart}`;
+}
+
 // Filter 邏輯
 function openArrayFilter(data, bodyContainer, parentKey) {
-  activeArrayNode = { data, bodyContainer, parentKey };
-  arrayFilterKeysEl.innerHTML = "";
-
   const keys = new Set();
   data.forEach(item => {
     if (item && typeof item === 'object') {
       Object.keys(item).forEach(k => keys.add(k));
     }
   });
+  const keysArray = Array.from(keys);
+  const storageKey = getFilterStorageKey(parentKey, [...keysArray]);
+  const savedKeys = JSON.parse(localStorage.getItem(storageKey) || "null");
+  activeArrayNode = { data, bodyContainer, parentKey, storageKey };
+  arrayFilterKeysEl.innerHTML = "";
 
   // 全選控制項
   const controlDiv = document.createElement("div");
@@ -264,9 +288,10 @@ function openArrayFilter(data, bodyContainer, parentKey) {
   arrayFilterKeysEl.appendChild(controlDiv);
 
   keys.forEach(k => {
+    const checked = savedKeys ? savedKeys.includes(k) : true;
     const div = document.createElement("div");
     div.className = "filter-checkbox-item";
-    div.innerHTML = `<label><input type="checkbox" checked value="${k}"> ${k}</label>`;
+    div.innerHTML = `<label><input type="checkbox" ${checked ? "checked" : ""} value="${k}"> ${k}</label>`;
     arrayFilterKeysEl.appendChild(div);
   });
 
@@ -280,8 +305,11 @@ window.toggleAllFilters = (checked) => {
 
 arrayFilterConfirmBtn.onclick = () => {
   if (!activeArrayNode) return;
-  const { data, bodyContainer } = activeArrayNode;
+  const { data, bodyContainer, storageKey } = activeArrayNode;
   const selectedKeys = Array.from(arrayFilterKeysEl.querySelectorAll("input:checked")).map(i => i.value);
+  if (storageKey) {
+    localStorage.setItem(storageKey, JSON.stringify(selectedKeys));
+  }
 
   bodyContainer.innerHTML = "";
   data.forEach((item, index) => {
