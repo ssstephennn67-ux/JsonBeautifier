@@ -41,6 +41,9 @@ button {
 button.secondary { background: var(--secondary); color: var(--text); border: 1px solid var(--border); }
 button.secondary:hover { background: var(--secondary-hover); border-color: var(--primary); }
 button.is-active { background: var(--primary); color: var(--bg); pointer-events: none; }
+.theme-opt.is-active,
+.font-opt.is-active,
+.lang-opt.is-active { border-color: var(--primary); }
 
 /* 彈窗設計 */
 .settings-backdrop {

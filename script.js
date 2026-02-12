@@ -29,12 +29,26 @@ function applyTheme(theme) {
   document.body.className = document.body.className.replace(/theme-\w+/, `theme-${theme}`);
   currentTheme = theme;
   localStorage.setItem('json-theme', theme);
+  syncSettingsActiveState();
 }
 
 function applyFontSize(size) {
   document.body.className = document.body.className.replace(/font-\w+/, `font-${size}`);
   currentFont = size;
   localStorage.setItem('json-font', size);
+  syncSettingsActiveState();
+}
+
+function syncSettingsActiveState() {
+  document.querySelectorAll(".theme-opt").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.theme === currentTheme);
+  });
+  document.querySelectorAll(".font-opt").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.font === currentFont);
+  });
+  document.querySelectorAll(".lang-opt").forEach(b => {
+    b.classList.toggle("is-active", b.dataset.lang === currentLang);
+  });
 }
 
 // 渲染節點
@@ -271,7 +285,10 @@ hideJsonBtn.onclick = () => {
   jsonHidden = !jsonHidden;
   applyJsonPanelState();
 };
-settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
+settingsBtn.onclick = () => {
+  syncSettingsActiveState();
+  settingsBackdrop.classList.add("open");
+};
 settingsDoneBtn.onclick = () => settingsBackdrop.classList.remove("open");
 document.querySelectorAll(".theme-opt").forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 document.querySelectorAll(".font-opt").forEach(b => b.onclick = () => applyFontSize(b.dataset.font));
