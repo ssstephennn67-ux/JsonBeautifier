@@ -61,8 +61,9 @@ function createNode(key, value, isRoot = false) {
     row.appendChild(toggle);
   } else {
     const spacer = document.createElement("span");
-    spacer.style.width = "18px";
+    spacer.style.width = "14px";
     spacer.style.display = "inline-block";
+    spacer.style.flexShrink = "0";
     row.appendChild(spacer);
   }
 
@@ -85,6 +86,16 @@ function createNode(key, value, isRoot = false) {
     const bracketOpen = document.createElement("span");
     bracketOpen.textContent = isArray ? "[" : "{";
     row.appendChild(bracketOpen);
+
+    const count = isArray ? value.length : Object.keys(value).length;
+    const summary = document.createElement("span");
+    summary.className = "collapse-summary";
+    summary.textContent = ` ${count} ${isArray ? "items" : "keys"} `;
+    row.appendChild(summary);
+    const summaryBracketClose = document.createElement("span");
+    summaryBracketClose.className = "collapse-summary-bracket";
+    summaryBracketClose.textContent = isArray ? "]" : "}";
+    row.appendChild(summaryBracketClose);
 
     // Filter 及 動作按鈕 (如果是物件陣列)
     if (isArray && value.length > 0 && typeof value[0] === 'object') {
@@ -202,6 +213,33 @@ arrayFilterConfirmBtn.onclick = () => {
 
 arrayFilterCancelBtn.onclick = () => arrayFilterBackdrop.classList.remove("open");
 
+// 全部展開 / 全部收合 / 收合子節點
+function setAllExpanded(expand) {
+  if (!rootNodeEl) return;
+  rootNodeEl.querySelectorAll(".node").forEach((node) => {
+    if (expand) {
+      node.classList.remove("collapsed");
+      const t = node.querySelector(".toggle");
+      if (t) t.textContent = "▼";
+    } else {
+      node.classList.add("collapsed");
+      const t = node.querySelector(".toggle");
+      if (t) t.textContent = "▶";
+    }
+  });
+}
+
+function collapseAllChildrenOnly() {
+  if (!rootNodeEl) return;
+  const nodes = rootNodeEl.querySelectorAll(".node");
+  nodes.forEach((node, i) => {
+    if (i === 0) return;
+    node.classList.add("collapsed");
+    const t = node.querySelector(".toggle");
+    if (t) t.textContent = "▶";
+  });
+}
+
 // 其他 UI 控制
 function parseAndRender() {
   const val = inputEl.value.trim();
@@ -222,6 +260,15 @@ function parseAndRender() {
 }
 
 parseBtn.onclick = parseAndRender;
+expandAllBtn.onclick = () => setAllExpanded(true);
+collapseAllBtn.onclick = () => setAllExpanded(false);
+collapseAllChildBtn.onclick = () => collapseAllChildrenOnly();
+hideJsonBtn.onclick = () => {
+  jsonHidden = !jsonHidden;
+  panelLeft.classList.toggle("hidden", jsonHidden);
+  panelRight.classList.toggle("full-width", jsonHidden);
+  hideJsonBtn.textContent = jsonHidden ? "顯示 JSON 輸入" : "隱藏 JSON 輸入";
+};
 settingsBtn.onclick = () => settingsBackdrop.classList.add("open");
 settingsDoneBtn.onclick = () => settingsBackdrop.classList.remove("open");
 document.querySelectorAll(".theme-opt").forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
