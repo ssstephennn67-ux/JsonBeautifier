@@ -25,6 +25,43 @@ let currentTheme = localStorage.getItem('json-theme') || 'dark';
 let currentFont = localStorage.getItem('json-font') || 'medium';
 let currentLang = localStorage.getItem('json-lang') || 'zh';
 
+const strings = {
+  zh: {
+    parseBtn: "解析並格式化",
+    expandAll: "全部展開",
+    collapseAll: "全部收合",
+    collapseChild: "收合子節點",
+    hideJson: "隱藏 JSON 輸入",
+    showJson: "顯示 JSON 輸入",
+    settings: "偏好設定",
+    placeholder: "在此貼上 JSON 程式碼...",
+    themeLabel: "主題",
+    fontLabel: "字體大小",
+    langLabel: "介面語言",
+    close: "關閉",
+    filterTitle: "過濾欄位 (Array Filter)",
+    filterCancel: "取消",
+    filterConfirm: "執行過濾",
+  },
+  en: {
+    parseBtn: "Parse & Beautify",
+    expandAll: "Expand All",
+    collapseAll: "Collapse All",
+    collapseChild: "Collapse Children",
+    hideJson: "Hide JSON Input",
+    showJson: "Show JSON Input",
+    settings: "Preferences",
+    placeholder: "Paste JSON here...",
+    themeLabel: "Theme",
+    fontLabel: "Font Size",
+    langLabel: "Language",
+    close: "Close",
+    filterTitle: "Filter Keys (Array Filter)",
+    filterCancel: "Cancel",
+    filterConfirm: "Apply Filter",
+  },
+};
+
 function applyTheme(theme) {
   document.body.className = document.body.className.replace(/theme-\w+/, `theme-${theme}`);
   currentTheme = theme;
@@ -39,6 +76,14 @@ function applyFontSize(size) {
   syncSettingsActiveState();
 }
 
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('json-lang', lang);
+  syncSettingsActiveState();
+  document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
+  updateUIText();
+}
+
 function syncSettingsActiveState() {
   document.querySelectorAll(".theme-opt").forEach(b => {
     b.classList.toggle("is-active", b.dataset.theme === currentTheme);
@@ -49,6 +94,32 @@ function syncSettingsActiveState() {
   document.querySelectorAll(".lang-opt").forEach(b => {
     b.classList.toggle("is-active", b.dataset.lang === currentLang);
   });
+}
+
+function updateUIText() {
+  const t = strings[currentLang] || strings.zh;
+  parseBtn.textContent = t.parseBtn;
+  expandAllBtn.textContent = t.expandAll;
+  collapseAllBtn.textContent = t.collapseAll;
+  collapseAllChildBtn.textContent = t.collapseChild;
+  settingsBtn.textContent = t.settings;
+  inputEl.placeholder = t.placeholder;
+  document.getElementById("settingsTitle").textContent = t.settings;
+  settingsDoneBtn.textContent = t.close;
+  document.querySelector(".settings-row:nth-child(1) .settings-label").textContent = t.themeLabel;
+  document.querySelector(".settings-row:nth-child(2) .settings-label").textContent = t.fontLabel;
+  document.querySelector(".settings-row:nth-child(3) .settings-label").textContent = t.langLabel;
+  arrayFilterBackdrop.querySelector("h2").textContent = t.filterTitle;
+  arrayFilterCancelBtn.textContent = t.filterCancel;
+  arrayFilterConfirmBtn.textContent = t.filterConfirm;
+  applyJsonPanelState();
+}
+
+function applyJsonPanelState() {
+  const t = strings[currentLang] || strings.zh;
+  panelLeft.classList.toggle("hidden", jsonHidden);
+  panelRight.classList.toggle("full-width", jsonHidden);
+  hideJsonBtn.textContent = jsonHidden ? t.showJson : t.hideJson;
 }
 
 // 渲染節點
@@ -271,12 +342,6 @@ function parseAndRender() {
   }
 }
 
-function applyJsonPanelState() {
-  panelLeft.classList.toggle("hidden", jsonHidden);
-  panelRight.classList.toggle("full-width", jsonHidden);
-  hideJsonBtn.textContent = jsonHidden ? "顯示 JSON 輸入" : "隱藏 JSON 輸入";
-}
-
 parseBtn.onclick = parseAndRender;
 expandAllBtn.onclick = () => setAllExpanded(true);
 collapseAllBtn.onclick = () => setAllExpanded(false);
@@ -292,3 +357,5 @@ settingsBtn.onclick = () => {
 settingsDoneBtn.onclick = () => settingsBackdrop.classList.remove("open");
 document.querySelectorAll(".theme-opt").forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 document.querySelectorAll(".font-opt").forEach(b => b.onclick = () => applyFontSize(b.dataset.font));
+document.querySelectorAll(".lang-opt").forEach(b => b.onclick = () => applyLang(b.dataset.lang));
+updateUIText();

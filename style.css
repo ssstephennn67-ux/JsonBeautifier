@@ -5,7 +5,7 @@ body {
   margin: 0; padding: 16px; min-height: 100vh;
   display: flex; flex-direction: column;
   background: var(--bg); color: var(--text);
-  --font-size: 13px;
+  --font-size: 15px;
   transition: background 0.3s, color 0.3s;
 }
 
@@ -13,9 +13,9 @@ body {
 body.modal-open { overflow: hidden; padding-right: 15px; }
 
 /* 字體大小變量 */
-body.font-small { --font-size: 11px; }
-body.font-medium { --font-size: 13px; }
-body.font-large { --font-size: 16px; }
+body.font-small { --font-size: 13px; }
+body.font-medium { --font-size: 15px; }
+body.font-large { --font-size: 18px; }
 
 /* 主題變量庫 */
 body.theme-dark { --bg: #1a1b26; --text: #c0caf5; --panel: #24283b; --border: #3b4261; --primary: #7aa2f7; --primary-hover: #89b4fa; --secondary: #3b4261; --secondary-hover: #414868; --key: #7dcfff; --key-index: #bb9af7; --string: #9ece6a; --number: #ff9e64; --muted: #565f89; --error: #f7768e; --hover-bg: rgba(122, 162, 247, 0.15); }
@@ -52,12 +52,14 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 }
 .settings-backdrop.open { display: flex; }
 .settings-dialog {
-  background: var(--panel); border: 1px solid var(--border); border-radius: 16px;
-  padding: 32px; width: 95%; max-width: 550px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  background: var(--panel); border: 0px solid var(--border); border-radius: 8px;
+  padding: 15px; width: 95%; max-width: 550px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
-.settings-row { margin-bottom: 24px; }
-.settings-label { display: block; font-size: 11px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+.settings-row { margin-bottom: 30px; }
+.settings-label { display: block; font-size: 15px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
 .settings-options { display: flex; gap: 8px; flex-wrap: wrap; }
+.settings-dialog .settings-options button,
+.settings-dialog .btn-done { min-height: 38px; box-sizing: border-box; font-size: 15px}
 
 /* JSON Tree */
 textarea { flex: 1; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: inherit; font-size: var(--font-size); resize: none; }
