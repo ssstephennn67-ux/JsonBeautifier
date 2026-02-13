@@ -252,20 +252,29 @@ function createNode(key, value, isRoot = false) {
       collapseChildrenBtn.onclick = (e) => {
         e.stopPropagation();
         const nodes = body.querySelectorAll(".node");
-        const anyExpanded = Array.from(nodes).some(n => !n.classList.contains("collapsed"));
+        const allChildrenCollapsed = Array.from(nodes).every(n => n.classList.contains("collapsed"));
         const txt = strings[currentLang] || strings.zh;
-        nodes.forEach(node => {
-          if (anyExpanded) {
-            node.classList.add("collapsed");
-            const t = node.querySelector(".toggle");
-            if (t) t.textContent = "▶";
-          } else {
+        if (allChildrenCollapsed) {
+          container.classList.remove("collapsed");
+          const rowToggle = row.querySelector(".toggle");
+          if (rowToggle) rowToggle.textContent = "▼";
+          nodes.forEach(node => {
             node.classList.remove("collapsed");
             const t = node.querySelector(".toggle");
             if (t) t.textContent = "▼";
-          }
-        });
-        collapseChildrenBtn.innerHTML = anyExpanded ? `<span class="btn-icon">▶</span><span>${txt.expandArray}</span>` : `<span class="btn-icon">▼</span><span>${txt.collapseArray}</span>`;
+          });
+          collapseChildrenBtn.innerHTML = `<span class="btn-icon">▼</span><span>${txt.collapseArray}</span>`;
+        } else {
+          nodes.forEach(node => {
+            node.classList.add("collapsed");
+            const t = node.querySelector(".toggle");
+            if (t) t.textContent = "▶";
+          });
+          container.classList.add("collapsed");
+          const rowToggle = row.querySelector(".toggle");
+          if (rowToggle) rowToggle.textContent = "▶";
+          collapseChildrenBtn.innerHTML = `<span class="btn-icon">▶</span><span>${txt.expandArray}</span>`;
+        }
       };
 
       btnGroup.appendChild(filterBtn);
@@ -484,4 +493,6 @@ settingsDoneBtn.onclick = () => settingsBackdrop.classList.remove("open");
 document.querySelectorAll(".theme-opt").forEach(b => b.onclick = () => applyTheme(b.dataset.theme));
 document.querySelectorAll(".font-opt").forEach(b => b.onclick = () => applyFontSize(b.dataset.font));
 document.querySelectorAll(".lang-opt").forEach(b => b.onclick = () => applyLang(b.dataset.lang));
-updateUIText();
+applyTheme(currentTheme);
+applyFontSize(currentFont);
+applyLang(currentLang);
