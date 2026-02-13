@@ -20,6 +20,8 @@ let rootNodeEl = null;
 let jsonHidden = false;
 let activeArrayNode = null;
 
+const FILTER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>';
+
 // Preferences
 let currentTheme = localStorage.getItem('json-theme') || 'dark';
 let currentFont = localStorage.getItem('json-font') || 'medium';
@@ -44,7 +46,7 @@ const strings = {
     langZh: "繁體中文",
     langEn: "English",
     close: "關閉",
-    filterTitle: "過濾欄位 (Array Filter)",
+    filterTitle: "過濾欄位",
     filterCancel: "取消",
     filterConfirm: "執行過濾",
     filterWarningEmpty: "請至少選擇一個欄位",
@@ -75,7 +77,7 @@ const strings = {
     langZh: "繁體中文",
     langEn: "English",
     close: "Close",
-    filterTitle: "Filter Keys (Array Filter)",
+    filterTitle: "Array Filter",
     filterCancel: "Cancel",
     filterConfirm: "Apply Filter",
     filterWarningEmpty: "Please select at least one key",
@@ -85,8 +87,8 @@ const strings = {
     filtering: "Filtering",
     selectAll: "Select All",
     clearAll: "Clear All",
-    items: "items",
-    keys: "keys",
+    items: "Items",
+    keys: "Keys",
   },
 };
 
@@ -237,7 +239,7 @@ function createNode(key, value, isRoot = false) {
       const filterBtn = document.createElement("button");
       filterBtn.className = "secondary tiny-btn array-filter-btn";
       filterBtn.dataset.totalKeys = String(totalKeys);
-      filterBtn.textContent = (strings[currentLang] || strings.zh).filter;
+      filterBtn.innerHTML = `<span class="btn-icon">${FILTER_ICON}</span><span>${(strings[currentLang] || strings.zh).filter}</span>`;
       filterBtn.onclick = (e) => {
         e.stopPropagation();
         openArrayFilter(value, body, key);
@@ -246,7 +248,7 @@ function createNode(key, value, isRoot = false) {
       const collapseChildrenBtn = document.createElement("button");
       collapseChildrenBtn.className = "secondary tiny-btn array-collapse-children-btn";
       const t2 = strings[currentLang] || strings.zh;
-      collapseChildrenBtn.textContent = t2.collapseArray;
+      collapseChildrenBtn.innerHTML = `<span class="btn-icon">▼</span><span>${t2.collapseArray}</span>`;
       collapseChildrenBtn.onclick = (e) => {
         e.stopPropagation();
         const nodes = body.querySelectorAll(".node");
@@ -263,7 +265,7 @@ function createNode(key, value, isRoot = false) {
             if (t) t.textContent = "▼";
           }
         });
-        collapseChildrenBtn.textContent = anyExpanded ? txt.expandArray : txt.collapseArray;
+        collapseChildrenBtn.innerHTML = anyExpanded ? `<span class="btn-icon">▶</span><span>${txt.expandArray}</span>` : `<span class="btn-icon">▼</span><span>${txt.collapseArray}</span>`;
       };
 
       btnGroup.appendChild(filterBtn);
@@ -394,16 +396,16 @@ arrayFilterConfirmBtn.onclick = () => {
   const txt = strings[currentLang] || strings.zh;
   if (filterBtn && totalKeys > 0) {
     if (selectedKeys.length < totalKeys) {
-      filterBtn.textContent = `${txt.filtering} (${selectedKeys.length}/${totalKeys})`;
+      filterBtn.innerHTML = `<span class="btn-icon">${FILTER_ICON}</span><span>${txt.filtering} (${selectedKeys.length}/${totalKeys})</span>`;
       filterBtn.classList.add("is-filtering");
     } else {
-      filterBtn.textContent = txt.filter;
+      filterBtn.innerHTML = `<span class="btn-icon">${FILTER_ICON}</span><span>${txt.filter}</span>`;
       filterBtn.classList.remove("is-filtering");
     }
   }
   if (collapseBtn) {
     const txt = strings[currentLang] || strings.zh;
-    collapseBtn.textContent = txt.collapseArray;
+    collapseBtn.innerHTML = `<span class="btn-icon">▼</span><span>${txt.collapseArray}</span>`;
   }
 };
 

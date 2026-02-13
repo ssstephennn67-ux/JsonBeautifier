@@ -116,6 +116,12 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
     margin: 0 !important;
     line-height: 1;
 }
+.array-filter-btn,
+.array-collapse-children-btn { padding: 4px 10px !important; font-size: 13px !important; height: 26px !important; min-width: auto !important; margin: 0 !important; line-height: 1; display: inline-flex; align-items: center; gap: 4px; }
+.array-filter-btn .btn-icon,
+.array-collapse-children-btn .btn-icon { display: inline-flex; align-items: center; font-size: 10px; }
+.array-filter-btn .btn-icon svg,
+.array-collapse-children-btn .btn-icon svg { flex-shrink: 0; }
 .array-filter-btn.is-filtering { background: var(--primary) !important; color: var(--bg) !important; border-color: var(--primary) !important; }
 
 .array-actions {
