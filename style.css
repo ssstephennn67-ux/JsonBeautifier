@@ -42,7 +42,14 @@ h1 { font-size: 24px; margin-bottom: 16px; color: var(--primary); flex-shrink: 0
 .icon-link { color: var(--muted); display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; transition: color 0.2s; }
 .icon-link svg { display: block; flex-shrink: 0; }
 .icon-link:hover { color: var(--primary); }
-.toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; flex-shrink: 0; }
+.toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; flex-shrink: 0; }
+.toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toolbar-spacer { flex: 1; min-width: 16px; }
+.toolbar-right { display: flex; align-items: center; gap: 8px; }
+.toolbar-post-parse { display: none; gap: 8px; }
+.toolbar-post-parse.visible { display: inline-flex; }
+.toolbar-icon-link { color: var(--muted); display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; transition: color 0.2s; flex-shrink: 0; }
+.toolbar-icon-link:hover { color: var(--primary); }
 .main { display: flex; gap: 16px; flex: 1; min-height: 0; overflow: hidden; }
 .panel-left, .panel-right { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; transition: all 0.3s ease; }
 .panel-left.hidden { display: none; }

@@ -4,7 +4,9 @@ const parseBtn = document.getElementById("parseBtn");
 const expandAllBtn = document.getElementById("expandAllBtn");
 const collapseAllBtn = document.getElementById("collapseAllBtn");
 const collapseAllChildBtn = document.getElementById("collapseAllChildBtn");
+const sortKeysBtn = document.getElementById("sortKeysBtn");
 const hideJsonBtn = document.getElementById("hideJsonBtn");
+const toolbarPostParseEl = document.getElementById("toolbarPostParse");
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsBackdrop = document.getElementById("settingsBackdrop");
 const settingsDoneBtn = document.getElementById("settingsDoneBtn");
@@ -19,6 +21,7 @@ const errorEl = document.getElementById("error");
 let rootNodeEl = null;
 let jsonHidden = false;
 let activeArrayNode = null;
+let jsonBeforeSort = null;
 
 const FILTER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>';
 
@@ -58,6 +61,8 @@ const strings = {
     clearAll: "清除",
     items: "項",
     keys: "鍵",
+    sortKeysAtoZ: "鍵名 A-Z 排序",
+    restoreKeys: "還原鍵名排序",
   },
   en: {
     parseBtn: "Parse & Beautify",
@@ -89,6 +94,8 @@ const strings = {
     clearAll: "Clear All",
     items: "Items",
     keys: "Keys",
+    sortKeysAtoZ: "Sort Keys A-Z",
+    restoreKeys: "Restore Sorting",
   },
 };
 
@@ -133,6 +140,7 @@ function updateUIText() {
   expandAllBtn.textContent = t.expandAll;
   collapseAllBtn.textContent = t.collapseAll;
   collapseAllChildBtn.textContent = t.collapseChild;
+  updateSortRestoreButton();
   settingsBtn.textContent = t.settings;
   inputEl.placeholder = t.placeholder;
   const settingsTitle = document.getElementById("settingsTitle");
@@ -157,6 +165,10 @@ function applyJsonPanelState() {
   panelLeft.classList.toggle("hidden", jsonHidden);
   panelRight.classList.toggle("full-width", jsonHidden);
   hideJsonBtn.textContent = jsonHidden ? t.showJson : t.hideJson;
+}
+
+function updateToolbarPostParseVisibility() {
+  toolbarPostParseEl?.classList.toggle("visible", rootNodeEl !== null);
 }
 
 // 渲染節點
@@ -224,12 +236,33 @@ function createNode(key, value, isRoot = false) {
 
     // Filter 及 動作按鈕 (陣列內至少有一個 object 就可 filter)
     const hasObjectItems = isArray && value.length > 0 && value.some(item => item != null && typeof item === 'object' && !Array.isArray(item));
+    let dataToRender = value;
+    let savedSelectedKeys = null;
     if (hasObjectItems) {
       const keys = new Set();
       value.forEach(item => {
         if (item && typeof item === 'object') Object.keys(item).forEach(k => keys.add(k));
       });
       const totalKeys = keys.size;
+      const keysArray = Array.from(keys);
+      const storageKey = getFilterStorageKey(key, [...keysArray]);
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            savedSelectedKeys = parsed;
+            dataToRender = value.map((item, index) => {
+              if (typeof item === 'object' && item !== null) {
+                const filtered = {};
+                savedSelectedKeys.forEach(k => { if (k in item) filtered[k] = item[k]; });
+                return filtered;
+              }
+              return item;
+            });
+          }
+        } catch (_) { /* ignore */ }
+      }
 
       const btnGroup = document.createElement("div");
       btnGroup.style.display = "inline-flex";
@@ -239,7 +272,12 @@ function createNode(key, value, isRoot = false) {
       const filterBtn = document.createElement("button");
       filterBtn.className = "secondary tiny-btn array-filter-btn";
       filterBtn.dataset.totalKeys = String(totalKeys);
-      filterBtn.innerHTML = `<span class="btn-icon">${FILTER_ICON}</span><span>${(strings[currentLang] || strings.zh).filter}</span>`;
+      if (savedSelectedKeys && savedSelectedKeys.length < totalKeys) {
+        filterBtn.innerHTML = `<span class="btn-icon">${FILTER_ICON}</span><span>${(strings[currentLang] || strings.zh).filtering} (${savedSelectedKeys.length}/${totalKeys})</span>`;
+        filterBtn.classList.add("is-filtering");
+      } else {
+        filterBtn.innerHTML = `<span class="btn-icon">${FILTER_ICON}</span><span>${(strings[currentLang] || strings.zh).filter}</span>`;
+      }
       filterBtn.onclick = (e) => {
         e.stopPropagation();
         openArrayFilter(value, body, key);
@@ -282,7 +320,7 @@ function createNode(key, value, isRoot = false) {
       row.appendChild(btnGroup);
     }
 
-    renderArrayItems(value, body);
+    renderArrayItems(dataToRender, body);
     container.appendChild(row);
     container.appendChild(body);
 
@@ -353,7 +391,7 @@ function openArrayFilter(data, bodyContainer, parentKey) {
   arrayFilterKeysEl.appendChild(controlDiv);
 
   keys.forEach(k => {
-    const checked = true;
+    const checked = savedKeys ? savedKeys.includes(k) : true;
     const div = document.createElement("div");
     div.className = "filter-checkbox-item";
     div.innerHTML = `<label><input type="checkbox" ${checked ? "checked" : ""} value="${k}"> ${k}</label>`;
@@ -454,12 +492,58 @@ function clearFilterStorage() {
   keys.forEach(k => { if (k.startsWith("json-filter-")) localStorage.removeItem(k); });
 }
 
+function sortKeysRecursive(value) {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    const sorted = {};
+    Object.keys(value)
+      .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }))
+      .forEach((k) => { sorted[k] = sortKeysRecursive(value[k]); });
+    return sorted;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => sortKeysRecursive(item));
+  }
+  return value;
+}
+
+function sortKeysAndRender() {
+  if (jsonBeforeSort !== null) {
+    inputEl.value = jsonBeforeSort;
+    jsonBeforeSort = null;
+    parseAndRender(false);
+    updateSortRestoreButton();
+    return;
+  }
+  const val = inputEl.value.trim();
+  if (!val) return;
+  try {
+    const data = JSON.parse(val);
+    jsonBeforeSort = val;
+    const sorted = sortKeysRecursive(data);
+    inputEl.value = JSON.stringify(sorted, null, 2);
+    parseAndRender(true);
+    updateSortRestoreButton();
+  } catch (e) {
+    errorEl.textContent = e.message;
+  }
+}
+
+function updateSortRestoreButton() {
+  if (!sortKeysBtn) return;
+  const t = strings[currentLang] || strings.zh;
+  sortKeysBtn.textContent = jsonBeforeSort !== null ? t.restoreKeys : t.sortKeysAtoZ;
+}
+
 // 其他 UI 控制；skipClearFilter = true 時不清理 filter state（如切換語言）
 function parseAndRender(skipClearFilter = false) {
   const val = inputEl.value.trim();
   if (!val) return;
   try {
     if (!skipClearFilter) {
+      rootNodeEl = null;
+      jsonBeforeSort = null;
+      updateSortRestoreButton();
+      updateToolbarPostParseVisibility();
       clearFilterStorage();
       arrayFilterBackdrop.classList.remove("open");
       settingsBackdrop.classList.remove("open");
@@ -472,12 +556,16 @@ function parseAndRender(skipClearFilter = false) {
     errorEl.textContent = "";
     jsonHidden = true;
     applyJsonPanelState();
+    updateToolbarPostParseVisibility();
   } catch (e) {
     errorEl.textContent = e.message;
+    rootNodeEl = null;
+    updateToolbarPostParseVisibility();
   }
 }
 
-parseBtn.onclick = parseAndRender;
+parseBtn.onclick = () => parseAndRender();
+sortKeysBtn.onclick = sortKeysAndRender;
 expandAllBtn.onclick = () => setAllExpanded(true);
 collapseAllBtn.onclick = () => setAllExpanded(false);
 collapseAllChildBtn.onclick = () => collapseAllChildrenOnly();
