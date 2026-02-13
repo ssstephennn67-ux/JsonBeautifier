@@ -149,17 +149,19 @@ function createNode(key, value, isRoot = false) {
   const isObject = typeof value === "object" && value !== null;
   const isArray = Array.isArray(value);
 
-  // 展開箭頭
+  // 展開箭頭 + 成行可 click
   if (isObject) {
+    row.classList.add("collapsible");
     const toggle = document.createElement("span");
     toggle.className = "toggle";
     toggle.textContent = "▼";
-    toggle.onclick = (e) => {
-      e.stopPropagation();
-      const isCollapsed = container.classList.toggle("collapsed");
-      toggle.textContent = isCollapsed ? "▶" : "▼";
-    };
     row.appendChild(toggle);
+    row.onclick = (e) => {
+      if (e.target.closest("button")) return;
+      const isCollapsed = container.classList.toggle("collapsed");
+      const t = row.querySelector(".toggle");
+      if (t) t.textContent = isCollapsed ? "▶" : "▼";
+    };
   } else {
     const spacer = document.createElement("span");
     spacer.style.width = "14px";

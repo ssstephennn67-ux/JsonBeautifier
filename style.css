@@ -79,8 +79,11 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 
 /* JSON 節點 */
 .node-item { display: block; position: relative; }
-.node-row { display: flex; align-items: baseline; flex-wrap: nowrap; white-space: nowrap; gap: 2px; }
-.node .toggle { cursor: pointer; width: 14px; flex-shrink: 0; color: var(--muted); font-size: 10px; user-select: none; }
+.node-row { display: flex; align-items: baseline; flex-wrap: nowrap; white-space: nowrap; gap: 2px; padding: 2px 4px; margin: 0 -4px; border-radius: 4px; transition: background 0.15s; }
+.node-row.collapsible { cursor: pointer; }
+.node-row.collapsible:hover { background: var(--hover-bg); }
+.node-row:not(.collapsible):hover { background: rgba(128, 128, 128, 0.06); }
+.node .toggle { width: 14px; flex-shrink: 0; color: var(--muted); font-size: 10px; user-select: none; pointer-events: none; }
 .toggle-btn { cursor: pointer; display: inline-block; width: 16px; text-align: center; color: var(--muted); user-select: none; margin-right: 4px; }
 .node-key { color: var(--key); font-weight: bold; }
 .node-string { color: var(--string); }
