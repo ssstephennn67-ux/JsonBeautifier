@@ -28,7 +28,7 @@ const FILTER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="
 // Preferences
 let currentTheme = localStorage.getItem('json-theme') || 'dark';
 let currentFont = localStorage.getItem('json-font') || 'medium';
-let currentLang = localStorage.getItem('json-lang') || 'zh';
+let currentLang = localStorage.getItem('json-lang') || 'en';
 
 const strings = {
   zh: {
