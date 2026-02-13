@@ -1,31 +1,65 @@
-# JSON Beautifier
+# 💎 JSON Beautifier Pro
 
-A single-page JSON viewer with tree view, expand/collapse, and array key filter.
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Privacy-100%25%20Client--Side-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Built%20With-Cursor%20AI-blueviolet?style=for-the-badge" />
+</p>
 
-## Features
+> **A smarter, privacy-first JSON tool for developers dealing with massive, complex datasets.**
 
-- **Parse / Beautify** — Paste JSON and view as a collapsible tree
-- **Left/right layout** — Input on the left, tree on the right
-- **Hide JSON** — Toggle to show only the tree (full width)
-- **Expand All / Collapse All** — Global expand or collapse
-- **Per-array** — Expand all / Collapse all for each array
-- **Array index** — Array items show `[0]`, `[1]`, etc.
-- **Array key filter** — For arrays of objects: pick a key to show only that key’s value in each object; other keys are hidden
+---
 
-## Usage
+### 🔗 Quick Links
+* **[🚀 Try it here !](https://ssstephennn67-ux.github.io/JsonBeautifier/)**
+* **[📖 Read the Full Story on Medium](https://medium.com/@ssstephennn67/beyond-beautification-a-smarter-privacy-first-json-tool-f65e6ce7197d)**
 
-Open `index.html` in a browser, paste JSON into the textarea, and click **Parse / Beautify** (or press Ctrl/Cmd + Enter).
+---
 
-## Deploy (GitHub Pages)
+## 🚀 Why This Tool?
 
-The repo includes a GitHub Action that deploys to GitHub Pages on every push to `main`.
+Standard beautifiers only fix indentation. When you're drowning in a 5,000-line API response, you need **organization** and **focus**. This tool was built to solve the "data noise" problem.
 
-1. In the repo: **Settings → Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Push to `main` (or run the workflow manually from the **Actions** tab)
+### 🔥 Key Features
 
-The site will be available at `https://<username>.github.io/JsonBeautifier/`.
+| Feature | Description |
+| :--- | :--- |
+| **⚡ Recursive Sorting** | Deep-cleans your JSON. Every nested object key is sorted alphabetically (A-Z). |
+| **🎯 Array Filtering** | Select only the keys you care about (e.g., `id`, `email`) in large arrays to hide the noise. |
+| **📂 Smart Navigation** | One-click to "Collapse Children" or "Expand All" with dynamic item count summaries. |
+| **🎨 Premium Themes** | One Dark, Monokai Pro, Nord, and more. Optimized for long coding sessions. |
+| **🌐 Multi-Language** | Full support for **English** and **Traditional Chinese**. |
 
-## License
+---
 
-MIT
+## 🤖 Built with Cursor AI
+
+This project was developed using **[Cursor](https://cursor.com/)**, the AI-powered code editor. By leveraging AI-assisted pair programming, I was able to rapidly implement:
+1. **Complex Recursion Logic**: Ensuring deep sorting and filtering without performance bottlenecks.
+2. **Contextual State Management**: A filtering system that remembers your preferences for each specific array.
+3. **Responsive UX**: Fluid layout transitions and theme engine.
+
+---
+
+## 🔒 Privacy & Security
+
+* **100% Client-Side**: All parsing and beautification happen directly in your browser. **Your data never leaves your machine.**
+* **Zero Tracking**: No cookies, no analytics, no logs. Pure utility.
+* **Transparent Hosting**: Hosted on GitHub Pages—the code is open and verifiable.
+
+---
+
+## 🛠️ Usage
+
+1. **Paste** your raw JSON into the input panel.
+2. **Parse** to generate the interactive, color-coded tree.
+3. **Filter** large arrays by clicking the <kbd>Filter</kbd> icon next to them.
+4. **Sort** the entire structure with the <kbd>Sort Keys A-Z</kbd> button.
+
+---
+
+## 🤝 Contributing
+
+Feel free to fork this project, report bugs, or submit pull requests. If this tool helped you, please give it a ⭐!
+
+**Developed by [Stephen](https://github.com/ssstephennn67-ux)**
