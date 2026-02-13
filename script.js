@@ -57,7 +57,7 @@ const strings = {
     selectAll: "全選",
     clearAll: "清除",
     items: "項",
-    keys: "keys",
+    keys: "鍵",
   },
   en: {
     parseBtn: "Parse & Beautify",
@@ -328,13 +328,15 @@ function openArrayFilter(data, bodyContainer, parentKey) {
   const txt = strings[currentLang] || strings.zh;
   const controlDiv = document.createElement("div");
   controlDiv.style.gridColumn = "1 / -1";
+  controlDiv.style.display = "flex";
+  controlDiv.style.gap = "4px";
   controlDiv.style.marginBottom = "10px";
   const selectAllBtn = document.createElement("button");
-  selectAllBtn.className = "secondary tiny-btn";
+  selectAllBtn.className = "secondary filter-dialog-control-btn";
   selectAllBtn.textContent = txt.selectAll;
   selectAllBtn.onclick = () => toggleAllFilters(true);
   const clearAllBtn = document.createElement("button");
-  clearAllBtn.className = "secondary tiny-btn";
+  clearAllBtn.className = "secondary filter-dialog-control-btn";
   clearAllBtn.textContent = txt.clearAll;
   clearAllBtn.onclick = () => toggleAllFilters(false);
   controlDiv.appendChild(selectAllBtn);
@@ -342,7 +344,7 @@ function openArrayFilter(data, bodyContainer, parentKey) {
   arrayFilterKeysEl.appendChild(controlDiv);
 
   keys.forEach(k => {
-    const checked = savedKeys ? savedKeys.includes(k) : true;
+    const checked = true;
     const div = document.createElement("div");
     div.className = "filter-checkbox-item";
     div.innerHTML = `<label><input type="checkbox" ${checked ? "checked" : ""} value="${k}"> ${k}</label>`;
@@ -448,7 +450,12 @@ function parseAndRender(skipClearFilter = false) {
   const val = inputEl.value.trim();
   if (!val) return;
   try {
-    if (!skipClearFilter) clearFilterStorage();
+    if (!skipClearFilter) {
+      clearFilterStorage();
+      arrayFilterBackdrop.classList.remove("open");
+      settingsBackdrop.classList.remove("open");
+      activeArrayNode = null;
+    }
     const data = JSON.parse(val);
     outputEl.innerHTML = "";
     rootNodeEl = createNode(null, data, true);

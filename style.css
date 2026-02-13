@@ -29,6 +29,10 @@ body.theme-monokai { --bg: #2d2a2e; --text: #fcfcfa; --panel: #221f22; --border:
 body.theme-nord { --bg: #2e3440; --text: #d8dee9; --panel: #3b4252; --border: #4c566a; --primary: #88c0d0; --primary-hover: #81a1c1; --secondary: #3b4252; --key: #8fbcbb; --key-index: #b48ead; --string: #a3be8c; --number: #ebcb8b; --muted: #4c566a; --error: #bf616a; --hover-bg: rgba(136, 192, 208, 0.2); }
 body.theme-cyberpunk { --bg: #000b1e; --text: #00ff9f; --panel: #00162d; --border: #00d2ff; --primary: #f300ff; --primary-hover: #ff00ea; --secondary: #00162d; --secondary-hover: #002d5a; --key: #00d2ff; --key-index: #ffff00; --string: #00ff9f; --number: #ff0055; --muted: #005670; --error: #ff0055; --hover-bg: rgba(243, 0, 255, 0.15); }
 body.theme-light { --bg: #f8f9fa; --text: #212529; --panel: #ffffff; --border: #dee2e6; --primary: #0d6efd; --primary-hover: #0b5ed7; --secondary: #e9ecef; --secondary-hover: #dee2e6; --key: #052c65; --key-index: #6610f2; --string: #198754; --number: #fd7e14; --muted: #6c757d; --error: #dc3545; --hover-bg: rgba(13, 110, 253, 0.05); }
+body.theme-snow { --bg: #fafafa; --text: #1a1a1a; --panel: #ffffff; --border: #e5e5e5; --primary: #2563eb; --primary-hover: #1d4ed8; --secondary: #f4f4f5; --secondary-hover: #e4e4e7; --key: #0369a1; --key-index: #7c3aed; --string: #15803d; --number: #c2410c; --muted: #71717a; --error: #dc2626; --hover-bg: rgba(37, 99, 235, 0.08); }
+body.theme-paper { --bg: #f5f0e8; --text: #2c2416; --panel: #fffef9; --border: #e8e0d4; --primary: #b8860b; --primary-hover: #996f09; --secondary: #ebe5dc; --secondary-hover: #ddd5c8; --key: #6b5b2e; --key-index: #8b4513; --string: #2e7d32; --number: #c62828; --muted: #6d6b65; --error: #b71c1c; --hover-bg: rgba(184, 134, 11, 0.1); }
+body.theme-catppuccin-latte { --bg: #eff1f5; --text: #4c4f69; --panel: #e6e9ef; --border: #ccd0da; --primary: #1e66f5; --primary-hover: #184fc4; --secondary: #e6e9ef; --secondary-hover: #dce0e8; --key: #1e66f5; --key-index: #8839ef; --string: #40a02b; --number: #fe640b; --muted: #9ca0b0; --error: #d20f39; --hover-bg: rgba(30, 102, 245, 0.1); }
+body.theme-solarized-light { --bg: #fdf6e3; --text: #657b83; --panel: #eee8d5; --border: #93a1a1; --primary: #268bd2; --primary-hover: #2aa198; --secondary: #eee8d5; --secondary-hover: #e0d9c4; --key: #268bd2; --key-index: #6c71c4; --string: #859900; --number: #d33682; --muted: #839496; --error: #dc322f; --hover-bg: rgba(38, 139, 210, 0.12); }
 
 /* 排版與面板 - 固定尺寸，只有框內可 scroll */
 h1 { font-size: 24px; margin-bottom: 16px; color: var(--primary); flex-shrink: 0; }
@@ -68,8 +72,9 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 .settings-backdrop.open { display: flex; }
 .settings-dialog {
   background: var(--panel); border: 0px solid var(--border); border-radius: 8px;
-  padding: 15px; width: 95%; max-width: 550px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  padding: 15px; width: 95%; max-width: 700px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
+.array-filter-dialog { max-width: 700px; max-height: 800px; }
 .settings-row { margin-bottom: 30px; }
 .settings-label { display: block; font-size: 15px; color: var(--primary); font-weight: bold; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
 .settings-options { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -117,7 +122,8 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
     line-height: 1;
 }
 .array-filter-btn,
-.array-collapse-children-btn { padding: 4px 10px !important; font-size: 13px !important; height: 26px !important; min-width: auto !important; margin: 0 !important; line-height: 1; display: inline-flex; align-items: center; gap: 4px; }
+.array-collapse-children-btn,
+.filter-dialog-control-btn { padding: 10px 10px !important; font-size: 13px !important; height: 26px !important; min-width: auto !important; margin: 0 !important; line-height: 1; display: inline-flex; align-items: center; gap: 5px; }
 .array-filter-btn .btn-icon,
 .array-collapse-children-btn .btn-icon { display: inline-flex; align-items: center; font-size: 10px; }
 .array-filter-btn .btn-icon svg,
@@ -134,7 +140,7 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 /* Array Filter 彈窗內部佈局 */
 .array-filter-keys {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
     max-height: 350px;
     overflow-y: auto;
