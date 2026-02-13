@@ -23,7 +23,7 @@ let jsonHidden = false;
 let activeArrayNode = null;
 let jsonBeforeSort = null;
 
-const FILTER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>';
+const FILTER_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></svg>';
 
 // Preferences
 let currentTheme = localStorage.getItem('json-theme') || 'dark';
@@ -224,6 +224,8 @@ function createNode(key, value, isRoot = false) {
     row.appendChild(bracketOpen);
 
     const count = isArray ? value.length : Object.keys(value).length;
+    const isEmpty = count === 0;
+    if (isEmpty) container.classList.add("empty");
     const summary = document.createElement("span");
     summary.className = "collapse-summary";
     const txt = strings[currentLang] || strings.zh;
@@ -233,6 +235,12 @@ function createNode(key, value, isRoot = false) {
     summaryBracketClose.className = "collapse-summary-bracket";
     summaryBracketClose.textContent = isArray ? "]" : "}";
     row.appendChild(summaryBracketClose);
+    if (isEmpty) {
+      const inlineClose = document.createElement("span");
+      inlineClose.className = "inline-bracket-close";
+      inlineClose.textContent = isArray ? "]" : "}";
+      row.appendChild(inlineClose);
+    }
 
     // Filter 及 動作按鈕 (陣列內至少有一個 object 就可 filter)
     const hasObjectItems = isArray && value.length > 0 && value.some(item => item != null && typeof item === 'object' && !Array.isArray(item));

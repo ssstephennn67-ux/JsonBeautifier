@@ -132,9 +132,9 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 .array-collapse-children-btn,
 .filter-dialog-control-btn { padding: 10px 10px !important; font-size: 13px !important; height: 26px !important; min-width: auto !important; margin: 0 !important; line-height: 1; display: inline-flex; align-items: center; gap: 5px; }
 .array-filter-btn .btn-icon,
-.array-collapse-children-btn .btn-icon { display: inline-flex; align-items: center; font-size: 10px; }
+.array-collapse-children-btn .btn-icon { display: inline-flex; align-items: center; font-size: 12px; }
 .array-filter-btn .btn-icon svg,
-.array-collapse-children-btn .btn-icon svg { flex-shrink: 0; }
+.array-collapse-children-btn .btn-icon svg { flex-shrink: 0; width: 14px; height: 14px; }
 .array-filter-btn.is-filtering { background: var(--primary) !important; color: var(--bg) !important; border-color: var(--primary) !important; }
 
 .array-actions {
@@ -208,3 +208,8 @@ button.is-active { background: var(--primary); color: var(--bg); pointer-events:
 .node.collapsed > .bracket-close {
     display: none;
 }
+
+/* Empty object/array: { } on same line */
+.node.empty .inline-bracket-close { display: none; }
+.node.empty:not(.collapsed) .inline-bracket-close { display: inline; }
+.node.empty > .bracket-close { display: none; }
