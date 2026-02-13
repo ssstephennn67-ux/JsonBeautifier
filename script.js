@@ -48,6 +48,14 @@ const strings = {
     filterCancel: "取消",
     filterConfirm: "執行過濾",
     filterWarningEmpty: "請至少選擇一個欄位",
+    collapseArray: "收合",
+    expandArray: "展開",
+    filter: "過濾",
+    filtering: "過濾中",
+    selectAll: "全選",
+    clearAll: "清除",
+    items: "項",
+    keys: "keys",
   },
   en: {
     parseBtn: "Parse & Beautify",
@@ -71,6 +79,14 @@ const strings = {
     filterCancel: "Cancel",
     filterConfirm: "Apply Filter",
     filterWarningEmpty: "Please select at least one key",
+    collapseArray: "Collapse",
+    expandArray: "Expand",
+    filter: "Filter",
+    filtering: "Filtering",
+    selectAll: "Select All",
+    clearAll: "Clear All",
+    items: "items",
+    keys: "keys",
   },
 };
 
@@ -94,6 +110,7 @@ function applyLang(lang) {
   syncSettingsActiveState();
   document.documentElement.lang = lang === 'zh' ? 'zh-HK' : 'en';
   updateUIText();
+  if (rootNodeEl) parseAndRender(true);
 }
 
 function syncSettingsActiveState() {
@@ -195,7 +212,8 @@ function createNode(key, value, isRoot = false) {
     const count = isArray ? value.length : Object.keys(value).length;
     const summary = document.createElement("span");
     summary.className = "collapse-summary";
-    summary.textContent = ` ${count} ${isArray ? "items" : "keys"} `;
+    const txt = strings[currentLang] || strings.zh;
+    summary.textContent = ` ${count} ${isArray ? txt.items : txt.keys} `;
     row.appendChild(summary);
     const summaryBracketClose = document.createElement("span");
     summaryBracketClose.className = "collapse-summary-bracket";
@@ -219,24 +237,37 @@ function createNode(key, value, isRoot = false) {
       const filterBtn = document.createElement("button");
       filterBtn.className = "secondary tiny-btn array-filter-btn";
       filterBtn.dataset.totalKeys = String(totalKeys);
-      filterBtn.textContent = "Filter";
+      filterBtn.textContent = (strings[currentLang] || strings.zh).filter;
       filterBtn.onclick = (e) => {
         e.stopPropagation();
         openArrayFilter(value, body, key);
       };
 
-      const resetBtn = document.createElement("button");
-      resetBtn.className = "secondary tiny-btn array-reset-btn";
-      resetBtn.textContent = "Reset";
-      resetBtn.onclick = (e) => {
+      const collapseChildrenBtn = document.createElement("button");
+      collapseChildrenBtn.className = "secondary tiny-btn array-collapse-children-btn";
+      const t2 = strings[currentLang] || strings.zh;
+      collapseChildrenBtn.textContent = t2.collapseArray;
+      collapseChildrenBtn.onclick = (e) => {
         e.stopPropagation();
-        renderArrayItems(value, body);
-        filterBtn.textContent = "Filter";
-        filterBtn.classList.remove("is-filtering");
+        const nodes = body.querySelectorAll(".node");
+        const anyExpanded = Array.from(nodes).some(n => !n.classList.contains("collapsed"));
+        const txt = strings[currentLang] || strings.zh;
+        nodes.forEach(node => {
+          if (anyExpanded) {
+            node.classList.add("collapsed");
+            const t = node.querySelector(".toggle");
+            if (t) t.textContent = "▶";
+          } else {
+            node.classList.remove("collapsed");
+            const t = node.querySelector(".toggle");
+            if (t) t.textContent = "▼";
+          }
+        });
+        collapseChildrenBtn.textContent = anyExpanded ? txt.expandArray : txt.collapseArray;
       };
 
       btnGroup.appendChild(filterBtn);
-      btnGroup.appendChild(resetBtn);
+      btnGroup.appendChild(collapseChildrenBtn);
       row.appendChild(btnGroup);
     }
 
@@ -292,14 +323,20 @@ function openArrayFilter(data, bodyContainer, parentKey) {
   activeArrayNode = { data, bodyContainer, parentKey, storageKey };
   arrayFilterKeysEl.innerHTML = "";
 
-  // 全選控制項
+  const txt = strings[currentLang] || strings.zh;
   const controlDiv = document.createElement("div");
   controlDiv.style.gridColumn = "1 / -1";
   controlDiv.style.marginBottom = "10px";
-  controlDiv.innerHTML = `
-    <button class="secondary tiny-btn" onclick="toggleAllFilters(true)">Select All</button>
-    <button class="secondary tiny-btn" onclick="toggleAllFilters(false)">Clear All</button>
-  `;
+  const selectAllBtn = document.createElement("button");
+  selectAllBtn.className = "secondary tiny-btn";
+  selectAllBtn.textContent = txt.selectAll;
+  selectAllBtn.onclick = () => toggleAllFilters(true);
+  const clearAllBtn = document.createElement("button");
+  clearAllBtn.className = "secondary tiny-btn";
+  clearAllBtn.textContent = txt.clearAll;
+  clearAllBtn.onclick = () => toggleAllFilters(false);
+  controlDiv.appendChild(selectAllBtn);
+  controlDiv.appendChild(clearAllBtn);
   arrayFilterKeysEl.appendChild(controlDiv);
 
   keys.forEach(k => {
@@ -351,15 +388,22 @@ arrayFilterConfirmBtn.onclick = () => {
   });
   arrayFilterBackdrop.classList.remove("open");
 
-  const filterBtn = bodyContainer.parentElement?.querySelector(".array-filter-btn");
+  const nodeEl = bodyContainer.parentElement;
+  const filterBtn = nodeEl?.querySelector(".array-filter-btn");
+  const collapseBtn = nodeEl?.querySelector(".array-collapse-children-btn");
+  const txt = strings[currentLang] || strings.zh;
   if (filterBtn && totalKeys > 0) {
     if (selectedKeys.length < totalKeys) {
-      filterBtn.textContent = `Filtering (${selectedKeys.length}/${totalKeys})`;
+      filterBtn.textContent = `${txt.filtering} (${selectedKeys.length}/${totalKeys})`;
       filterBtn.classList.add("is-filtering");
     } else {
-      filterBtn.textContent = "Filter";
+      filterBtn.textContent = txt.filter;
       filterBtn.classList.remove("is-filtering");
     }
+  }
+  if (collapseBtn) {
+    const txt = strings[currentLang] || strings.zh;
+    collapseBtn.textContent = txt.collapseArray;
   }
 };
 
@@ -397,12 +441,12 @@ function clearFilterStorage() {
   keys.forEach(k => { if (k.startsWith("json-filter-")) localStorage.removeItem(k); });
 }
 
-// 其他 UI 控制
-function parseAndRender() {
+// 其他 UI 控制；skipClearFilter = true 時不清理 filter state（如切換語言）
+function parseAndRender(skipClearFilter = false) {
   const val = inputEl.value.trim();
   if (!val) return;
   try {
-    clearFilterStorage();
+    if (!skipClearFilter) clearFilterStorage();
     const data = JSON.parse(val);
     outputEl.innerHTML = "";
     rootNodeEl = createNode(null, data, true);
