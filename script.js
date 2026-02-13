@@ -47,6 +47,7 @@ const strings = {
     filterTitle: "過濾欄位 (Array Filter)",
     filterCancel: "取消",
     filterConfirm: "執行過濾",
+    filterWarningEmpty: "請至少選擇一個欄位",
   },
   en: {
     parseBtn: "Parse & Beautify",
@@ -69,6 +70,7 @@ const strings = {
     filterTitle: "Filter Keys (Array Filter)",
     filterCancel: "Cancel",
     filterConfirm: "Apply Filter",
+    filterWarningEmpty: "Please select at least one key",
   },
 };
 
@@ -203,13 +205,20 @@ function createNode(key, value, isRoot = false) {
     // Filter 及 動作按鈕 (陣列內至少有一個 object 就可 filter)
     const hasObjectItems = isArray && value.length > 0 && value.some(item => item != null && typeof item === 'object' && !Array.isArray(item));
     if (hasObjectItems) {
+      const keys = new Set();
+      value.forEach(item => {
+        if (item && typeof item === 'object') Object.keys(item).forEach(k => keys.add(k));
+      });
+      const totalKeys = keys.size;
+
       const btnGroup = document.createElement("div");
       btnGroup.style.display = "inline-flex";
       btnGroup.style.gap = "4px";
       btnGroup.style.marginLeft = "10px";
 
       const filterBtn = document.createElement("button");
-      filterBtn.className = "secondary tiny-btn";
+      filterBtn.className = "secondary tiny-btn array-filter-btn";
+      filterBtn.dataset.totalKeys = String(totalKeys);
       filterBtn.textContent = "Filter";
       filterBtn.onclick = (e) => {
         e.stopPropagation();
@@ -217,11 +226,13 @@ function createNode(key, value, isRoot = false) {
       };
 
       const resetBtn = document.createElement("button");
-      resetBtn.className = "secondary tiny-btn";
+      resetBtn.className = "secondary tiny-btn array-reset-btn";
       resetBtn.textContent = "Reset";
       resetBtn.onclick = (e) => {
         e.stopPropagation();
         renderArrayItems(value, body);
+        filterBtn.textContent = "Filter";
+        filterBtn.classList.remove("is-filtering");
       };
 
       btnGroup.appendChild(filterBtn);
@@ -299,6 +310,8 @@ function openArrayFilter(data, bodyContainer, parentKey) {
     arrayFilterKeysEl.appendChild(div);
   });
 
+  arrayFilterWarningEl.style.display = "none";
+  arrayFilterWarningEl.textContent = "";
   arrayFilterBackdrop.classList.add("open");
 }
 
@@ -307,10 +320,21 @@ window.toggleAllFilters = (checked) => {
   cbs.forEach(cb => cb.checked = checked);
 };
 
+const arrayFilterWarningEl = document.getElementById("arrayFilterWarning");
+
 arrayFilterConfirmBtn.onclick = () => {
   if (!activeArrayNode) return;
   const { data, bodyContainer, storageKey } = activeArrayNode;
   const selectedKeys = Array.from(arrayFilterKeysEl.querySelectorAll("input:checked")).map(i => i.value);
+  const totalKeys = arrayFilterKeysEl.querySelectorAll("input[type='checkbox']").length;
+  if (selectedKeys.length === 0) {
+    const t = strings[currentLang] || strings.zh;
+    arrayFilterWarningEl.textContent = t.filterWarningEmpty;
+    arrayFilterWarningEl.style.display = "block";
+    return;
+  }
+  arrayFilterWarningEl.style.display = "none";
+  arrayFilterWarningEl.textContent = "";
   if (storageKey) {
     localStorage.setItem(storageKey, JSON.stringify(selectedKeys));
   }
@@ -326,6 +350,17 @@ arrayFilterConfirmBtn.onclick = () => {
     }
   });
   arrayFilterBackdrop.classList.remove("open");
+
+  const filterBtn = bodyContainer.parentElement?.querySelector(".array-filter-btn");
+  if (filterBtn && totalKeys > 0) {
+    if (selectedKeys.length < totalKeys) {
+      filterBtn.textContent = `Filtering (${selectedKeys.length}/${totalKeys})`;
+      filterBtn.classList.add("is-filtering");
+    } else {
+      filterBtn.textContent = "Filter";
+      filterBtn.classList.remove("is-filtering");
+    }
+  }
 };
 
 arrayFilterCancelBtn.onclick = () => arrayFilterBackdrop.classList.remove("open");
@@ -357,11 +392,17 @@ function collapseAllChildrenOnly() {
   });
 }
 
+function clearFilterStorage() {
+  const keys = Object.keys(localStorage);
+  keys.forEach(k => { if (k.startsWith("json-filter-")) localStorage.removeItem(k); });
+}
+
 // 其他 UI 控制
 function parseAndRender() {
   const val = inputEl.value.trim();
   if (!val) return;
   try {
+    clearFilterStorage();
     const data = JSON.parse(val);
     outputEl.innerHTML = "";
     rootNodeEl = createNode(null, data, true);
