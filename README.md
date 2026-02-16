@@ -1,31 +1,39 @@
-# JSON Beautifier
+# 🛡️ Smart JSON Studio 
 
-A single-page JSON viewer with tree view, expand/collapse, and array key filter.
+**Privacy-First | Local-Only | Intelligent JSON Analysis**
 
-## Features
+A smarter, more secure, and modern JSON formatter that goes beyond simple beautification. 
 
-- **Parse / Beautify** — Paste JSON and view as a collapsible tree
-- **Left/right layout** — Input on the left, tree on the right
-- **Hide JSON** — Toggle to show only the tree (full width)
-- **Expand All / Collapse All** — Global expand or collapse
-- **Per-array** — Expand all / Collapse all for each array
-- **Array index** — Array items show `[0]`, `[1]`, etc.
-- **Array key filter** — For arrays of objects: pick a key to show only that key’s value in each object; other keys are hidden
+👉 **[Live App: Try it here!](https://ssstephennn67-ux.github.io/JsonBeautifier/)**
 
-## Usage
+---
 
-Open `index.html` in a browser, paste JSON into the textarea, and click **Parse / Beautify** (or press Ctrl/Cmd + Enter).
+## 🚀 Why "Beyond Beautification"?
 
-## Deploy (GitHub Pages)
+Most online JSON tools are "dumb" — they just add spaces and indents. Even worse, many send your sensitive data to their servers for processing. 
 
-The repo includes a GitHub Action that deploys to GitHub Pages on every push to `main`.
+**Smart JSON Studio** is built for developers who care about **Privacy** and **Context**. Everything is processed **locally in your browser**. Your data never leaves your machine.
 
-1. In the repo: **Settings → Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Push to `main` (or run the workflow manually from the **Actions** tab)
+### ✨ Key Features
 
-The site will be available at `https://<username>.github.io/JsonBeautifier/`.
+* **🔒 Privacy-First Design**: Zero server-side processing. Safe for API keys, user data, and internal configurations.
+* **🧠 Smart Context Recognition**: Automatically detects and formats specific data types:
+    * **Timestamp Conversion**: Instantly turns Unix timestamps into human-readable dates.
+    * **Color Preview**: Visualizes Hex/RGB color codes.
+    * **Nested Parsing**: Cleanly handles stringified JSON within JSON.
+* **🔍 Power Search & Filter**: Find what you need in massive JSON files instantly.
+* **🎨 Developer UI**: Clean interface with syntax highlighting and a "Copy to Clipboard" that actually works.
 
-## License
+## 📖 The Philosophy
 
-MIT
+This tool was created to solve the "Privacy vs. Convenience" dilemma. You shouldn't have to risk leaking sensitive data just to get a readable JSON tree. 
+
+I’ve detailed the design decisions and the technical journey behind this project on Medium:
+👉 [Read: Beyond Beautification: A Smarter, Privacy-First JSON Tool](https://medium.com/@ssstephennn67/beyond-beautification-a-smarter-privacy-first-json-tool-f65e6ce7197d)
+
+## 🛠️ Built With
+- **Flutter Web**: For a high-performance, responsive UI.
+- **GitHub Actions**: For automated CI/CD deployment to GitHub Pages.
+
+---
+Created by [Stephen](https://medium.com/@ssstephennn67) | Built for the developer community.
