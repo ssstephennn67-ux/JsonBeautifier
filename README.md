@@ -1,4 +1,4 @@
-# Smart JSON Studio
+# Smart JSON Beautifier
 
 A modern, developer-centric JSON beautifier designed to handle complex data structures with ease.
 
